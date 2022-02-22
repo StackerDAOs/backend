@@ -1,12 +1,10 @@
 
 import { 
-  Clarinet, 
-  Tx, 
-  Chain, 
-  Account, 
-  types, 
-} from 'https://deno.land/x/clarinet@v0.14.0/index.ts';
-import { assertEquals } from 'https://deno.land/std@0.90.0/testing/asserts.ts';
+  Account,
+  Clarinet,
+  Chain,
+  types,
+} from '../models/utils/helpers.ts';
 import { SDE009Safe, SAFE_CODES } from '../models/sde009-safe-model.ts'; 
 import { ExecutorDao } from '../models/executor-dao-model.ts';
 import { SDE006Membership, SDE006_MEMBERSHIP_CODES } from '../models/sde006-membership-model.ts';
