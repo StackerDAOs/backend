@@ -9,9 +9,9 @@ import {
 import { assertEquals } from 'https://deno.land/std@0.90.0/testing/asserts.ts';
 import { SDE009Safe, SAFE_CODES } from '../models/sde009-safe-model.ts'; 
 import { ExecutorDao } from '../models/executor-dao-model.ts';
-import { SDE006Membership, MEMBERSHIP_CODES } from '../models/sde006-membership-model.ts';
-import { SDE008MembershipProposalSubmission, MEMBERSHIP_PROPOSAL_SUBMISSION_CODES } from '../models/sde008-membership-proposal-submission-model.ts';
-import { SDE007MembershipProposalVoting, MEMBERSHIP_PROPOSAL_VOTING_CODES } from '../models/sde007-membership-proposal-voting-model.ts';
+import { SDE006Membership, SDE006_MEMBERSHIP_CODES } from '../models/sde006-membership-model.ts';
+import { SDE008ProposalSubmission, SDE008_PROPOSAL_SUBMISSION_CODES } from '../models/sde008-proposal-submission-model.ts';
+import { SDE007ProposalVoting, SDE007_PROPOSAL_VOTING_CODES } from '../models/sde007-proposal-voting-model.ts';
 import { EXTENSIONS, PROPOSALS } from '../models/utils/contract-addresses.ts';
 
 
@@ -38,8 +38,8 @@ Clarinet.test({
     let proposedNewMember = accounts.get('wallet_3')!;
     let Dao = new ExecutorDao(chain);
     let Membership = new SDE006Membership(chain);
-    let ProposalSubmission = new SDE008MembershipProposalSubmission(chain);
-    let ProposalVoting = new SDE007MembershipProposalVoting(chain);
+    let ProposalSubmission = new SDE008ProposalSubmission(chain);
+    let ProposalVoting = new SDE007ProposalVoting(chain);
     let Safe = new SDE009Safe(chain);
     let result: any = null;
     let validStartHeight: number = 150;
