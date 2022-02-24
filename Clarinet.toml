@@ -152,3 +152,11 @@ depends_on = []
 [contracts.sip010-ft-trait]
 path = "contracts/traits/sip010-ft-trait.clar"
 depends_on = []
+
+[contracts.sde006-test-membership]
+path = "contracts/tests/extensions/access_control/sde006-test-membership.clar"
+depends_on = []
+
+[contracts.sdp008-test-proposal-submission]
+path = "contracts/tests/proposals/sdp008-test-proposal-submission.clar"
+depends_on = ["proposal-trait", "executor-dao", "sde006-test-membership", "sde006-membership"]
