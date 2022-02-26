@@ -42,8 +42,6 @@
 
 ;; --- Internal DAO functions
 
-;; governance-token-trait
-
 (define-public (sdg-transfer (amount uint) (sender principal) (recipient principal))
 	(begin
 		(try! (is-dao-or-extension))
@@ -122,7 +120,7 @@
 	)
 )
 
-;; sip010-ft-trait
+;; --- SIP010 traits
 
 (define-public (transfer (amount uint) (sender principal) (recipient principal) (memo (optional (buff 34))))
 	(begin
@@ -155,7 +153,7 @@
 	(ok (var-get tokenUri))
 )
 
-;; governance-token-trait
+;; --- Governance token traits
 
 (define-read-only (sdg-get-balance (who principal))
 	(get-balance who)

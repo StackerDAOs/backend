@@ -64,16 +64,12 @@
 
 ;; --- Internal DAO functions
 
-;; Governance token
-
 (define-public (set-governance-token (governanceToken <governance-token-trait>))
 	(begin
 		(try! (is-dao-or-extension))
 		(ok (var-set governanceTokenPrincipal (contract-of governanceToken)))
 	)
 )
-
-;; Proposals
 
 (define-public (add-proposal (proposal <proposal-trait>) (data {startBlockHeight: uint, endBlockHeight: uint, proposer: principal}))
 	(begin
@@ -86,8 +82,6 @@
 
 ;; --- Public functions
 
-;; Governance token
-
 (define-read-only (get-governance-token)
 	(var-get governanceTokenPrincipal)
 )
@@ -96,13 +90,9 @@
 	(ok (asserts! (is-eq (contract-of governanceToken) (var-get governanceTokenPrincipal)) ERR_NOT_GOVERNANCE_TOKEN))
 )
 
-;; Proposals
-
 (define-read-only (get-proposal-data (proposal principal))
 	(map-get? Proposals proposal)
 )
-
-;; Votes
 
 (define-read-only (get-current-total-votes (proposal principal) (voter principal) (governanceToken principal))
 	(default-to u0 (map-get? MemberTotalVotes {proposal: proposal, voter: voter, governanceToken: governanceToken}))
@@ -131,8 +121,6 @@
 	)
 )
 
-;; Conclusion
-
 (define-public (conclude (proposal <proposal-trait>))
 	(let
 		(
@@ -147,8 +135,6 @@
 		(ok passed)
 	)
 )
-
-;; Reclamation
 
 (define-public (reclaim-votes (proposal <proposal-trait>) (governanceToken <governance-token-trait>))
 	(let

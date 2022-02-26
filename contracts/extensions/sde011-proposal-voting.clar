@@ -65,16 +65,12 @@
 
 ;; --- Internal DAO functions
 
-;; NFT governance token
-
 (define-public (set-nft-contract (nft <sip009-nft-trait>))
   (begin
     (try! (is-dao-or-extension))
     (ok (var-set nftPrincipal (contract-of nft)))
   )
 )
-
-;; Proposals
 
 (define-public (add-proposal (proposal <proposal-trait>) (data {startBlockHeight: uint, endBlockHeight: uint, proposer: principal}))
   (begin

@@ -51,16 +51,12 @@
 
 ;; --- Internal DAO functions
 
-;; Governance token
-
 (define-public (set-nft-contract (nft <sip009-nft-trait>))
   (begin
     (try! (is-dao-or-extension))
     (ok (var-set nftPrincipal (contract-of nft)))
   )
 )
-
-;; Parameters
 
 (define-public (set-parameter (parameter (string-ascii 34)) (value uint))
   (begin

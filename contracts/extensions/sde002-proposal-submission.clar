@@ -52,16 +52,12 @@
 
 ;; --- Internal DAO functions
 
-;; Governance token
-
 (define-public (set-governance-token (governance-token <governance-token-trait>))
 	(begin
 		(try! (is-dao-or-extension))
 		(ok (var-set governanceTokenPrincipal (contract-of governance-token)))
 	)
 )
-
-;; Parameters
 
 (define-public (set-parameter (parameter (string-ascii 34)) (value uint))
 	(begin
@@ -88,8 +84,6 @@
 
 ;; --- Public functions
 
-;; Governance token
-
 (define-read-only (get-governance-token)
 	(var-get governanceTokenPrincipal)
 )
@@ -98,13 +92,9 @@
 	(ok (asserts! (is-eq (contract-of governance-token) (var-get governanceTokenPrincipal)) ERR_NOT_GOVERNANCE_TOKEN))
 )
 
-;; Parameters
-
 (define-read-only (get-parameter (parameter (string-ascii 34)))
 	(ok (unwrap! (map-get? parameters parameter) ERR_UNKNOWN_PARAMETER))
 )
-
-;; Proposals
 
 (define-public (propose (proposal <proposal-trait>) (startBlockHeight uint) (governance-token <governance-token-trait>))
 	(begin

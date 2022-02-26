@@ -66,16 +66,12 @@
 
 ;; --- Internal DAO functions
 
-;; Member
-
 (define-public (set-member-contract (memberContract <member-trait>))
   (begin
     (try! (is-dao-or-extension))
     (ok (var-set memberContractPrincipal (contract-of memberContract)))
   )
 )
-
-;; Proposals
 
 (define-public (add-proposal (proposal <proposal-trait>) (data {startBlockHeight: uint, endBlockHeight: uint, proposer: principal}))
   (begin
@@ -96,13 +92,9 @@
   (ok (asserts! (is-eq (contract-of memberContract) (get-member-contract)) ERR_NOT_MEMBER_CONTRACT))
 )
 
-;; Proposals
-
 (define-read-only (get-proposal-data (proposal principal))
   (map-get? Proposals proposal)
 )
-
-;; Votes
 
 (define-read-only (get-current-total-votes (proposal principal) (voter principal))
   (default-to u0 (map-get? MemberTotalVotes {proposal: proposal, voter: voter}))

@@ -38,7 +38,7 @@
   (ok (asserts! (or (is-eq tx-sender .executor-dao) (contract-call? .executor-dao is-extension contract-caller)) ERR_UNAUTHORIZED))
 )
 
-;; --- Public functions
+;; --- Internal DAO functions
 
 (define-public (set-whitelist (token principal) (enabled bool))
   (begin
@@ -61,6 +61,8 @@
     (ok (map set-whitelist-iter whitelist))
   )
 )
+
+;; --- Public functions
 
 (define-public (deposit-stx (amount uint))
   (begin
@@ -123,17 +125,14 @@
   (default-to false (get-whitelisted-asset assetContract))
 )
 
-;; Simple function to get a whitelisted asset
 (define-read-only (get-whitelisted-asset (assetContract principal))
   (map-get? WhitelistedAssets assetContract)
 )
 
-;; Get the balance of the safe
 (define-read-only (get-balance)
   (stx-get-balance CONTRACT_ADDRESS)
 )
 
-;; Get the balance of a specific asset
 (define-public (get-balance-of (assetContract <ft-trait>))
   (begin
     (asserts! (is-whitelisted (contract-of assetContract)) ERR_ASSET_NOT_WHITELISTED)

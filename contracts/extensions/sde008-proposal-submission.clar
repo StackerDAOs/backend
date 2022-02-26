@@ -50,16 +50,12 @@
 
 ;; --- Internal DAO functions
 
-;; Member
-
 (define-public (set-member-contract (memberContract <member-trait>))
   (begin
     (try! (is-dao-or-extension))
     (ok (var-set memberContractPrincipal (contract-of memberContract)))
   )
 )
-
-;; Parameters
 
 (define-public (set-parameter (parameter (string-ascii 34)) (value uint))
   (begin
@@ -94,13 +90,9 @@
   (ok (asserts! (is-eq (contract-of memberContract) (get-member-contract)) ERR_NOT_MEMBER_CONTRACT))
 )
 
-;; Parameters
-
 (define-read-only (get-parameter (parameter (string-ascii 34)))
   (ok (unwrap! (map-get? Parameters parameter) ERR_UNKNOWN_PARAMETER))
 )
-
-;; Proposals
 
 (define-public (propose (proposal <proposal-trait>) (startBlockHeight uint) (memberContract <member-trait>))
   (begin
