@@ -40,11 +40,25 @@
 
 ;; --- Public functions
 
-(define-public (set-whitelisted (assetContract principal) (whitelisted bool))
+(define-public (set-whitelist (token principal) (enabled bool))
   (begin
     (try! (is-dao-or-extension))
-    (map-set WhitelistedAssets assetContract whitelisted)
+    (map-set WhitelistedAssets token enabled)
     (ok true)
+  )
+)
+
+(define-private (set-whitelist-iter (item {token: principal, enabled: bool}))
+  (begin 
+    (print {event: "whitelist", token: (get token item), enabled: (get enabled item)})
+    (map-set WhitelistedAssets (get token item) (get enabled item))
+  )
+)
+
+(define-public (set-whitelists (whitelist (list 100 {token: principal, enabled: bool})))
+  (begin
+    (try! (is-dao-or-extension))
+    (ok (map set-whitelist-iter whitelist))
   )
 )
 
@@ -117,6 +131,14 @@
 ;; Get the balance of the safe
 (define-read-only (get-balance)
   (stx-get-balance CONTRACT_ADDRESS)
+)
+
+;; Get the balance of a specific asset
+(define-public (get-balance-of (assetContract <ft-trait>))
+  (begin
+    (asserts! (is-whitelisted (contract-of assetContract)) ERR_ASSET_NOT_WHITELISTED)
+    (contract-call? assetContract get-balance CONTRACT_ADDRESS)
+  )
 )
 
 ;; --- Extension callback

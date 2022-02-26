@@ -36,6 +36,13 @@
 			)
 		))
 
+		;; Whitelist fungible tokens in safe.
+		(try! (contract-call? .sde009-safe set-whitelists
+			(list
+				{token: .citycoin-token, enabled: true}
+			)
+		))
+
 		;; Set emergency team members.
 		(try! (contract-call? .sde003-emergency-proposals set-emergency-team-member 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM true))
 		(try! (contract-call? .sde003-emergency-proposals set-emergency-team-member 'ST1SJ3DTE5DN7X54YDH5D64R3BCB6A2AG2ZQ8YPD5 true))
