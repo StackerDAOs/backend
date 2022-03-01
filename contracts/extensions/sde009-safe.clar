@@ -119,7 +119,7 @@
   )
 )
 
-;; --- Read Only Functions
+;; --- Read only functions
 
 (define-read-only (is-whitelisted (assetContract principal))
   (default-to false (get-whitelisted-asset assetContract))

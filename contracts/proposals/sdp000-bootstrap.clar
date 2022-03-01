@@ -27,12 +27,8 @@
 		;; Enable genesis extensions.
 		(try! (contract-call? .executor-dao set-extensions
 			(list
-				{extension: .sde003-emergency-proposals, enabled: true}
-				{extension: .sde004-emergency-execute, enabled: true}
-				{extension: .sde006-membership, enabled: true}
-				{extension: .sde007-proposal-voting, enabled: true}
-				{extension: .sde008-proposal-submission, enabled: true}
 				{extension: .sde009-safe, enabled: true}
+				{extension: .sde013-multisig, enabled: true}
 			)
 		))
 
@@ -44,23 +40,9 @@
 		))
 
 		;; Set emergency team members.
-		(try! (contract-call? .sde003-emergency-proposals set-emergency-team-member 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM true))
-		(try! (contract-call? .sde003-emergency-proposals set-emergency-team-member 'ST1SJ3DTE5DN7X54YDH5D64R3BCB6A2AG2ZQ8YPD5 true))
-
-		;; Set executive team members.
-		(try! (contract-call? .sde004-emergency-execute set-executive-team-member 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM true))
-		(try! (contract-call? .sde004-emergency-execute set-executive-team-member 'ST1SJ3DTE5DN7X54YDH5D64R3BCB6A2AG2ZQ8YPD5 true))
-		(try! (contract-call? .sde004-emergency-execute set-executive-team-member 'ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG true))
-		(try! (contract-call? .sde004-emergency-execute set-executive-team-member 'ST2JHG361ZXG51QTKY2NQCVBPPRRE2KZB1HR05NNC true))
-		(try! (contract-call? .sde004-emergency-execute set-signals-required u3)) ;; signal from 3 out of 4 team members required.
-
-		;; Add initial DAO members.
-		(try! (contract-call? .sde006-membership set-member 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM true))
-		(try! (contract-call? .sde006-membership set-member 'ST1SJ3DTE5DN7X54YDH5D64R3BCB6A2AG2ZQ8YPD5 true))
-		(try! (contract-call? .sde006-membership set-member 'ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG true))
-
-		;; Set blacklisted address.
-		(try! (contract-call? .sde006-membership set-blacklist 'ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG true))
+		(try! (contract-call? .sde013-multisig set-signer 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM true))
+		(try! (contract-call? .sde013-multisig set-signer 'ST1SJ3DTE5DN7X54YDH5D64R3BCB6A2AG2ZQ8YPD5 true))
+		(try! (contract-call? .sde013-multisig set-signer 'ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG true))
 
 		(print "...to be a completely separate network and separate block chain, yet share CPU power with Bitcoin.")
 		(ok true)

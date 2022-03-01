@@ -54,7 +54,7 @@
 
 ;; --- Public functions
 
-;; --- Read Only Functions
+;; --- Read only functions
 
 (define-read-only (is-member (who principal))
   (if (is-blacklisted who)

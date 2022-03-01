@@ -32,7 +32,7 @@
 
 ;; --- Public functions
 
-;; --- Read Only Functions
+;; --- Read only functions
 
 ;; --- Extension callback
 
