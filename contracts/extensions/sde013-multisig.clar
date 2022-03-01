@@ -34,7 +34,8 @@
   principal
   {
     proposer: principal,
-    confirmed: bool
+    confirmed: bool,
+    concluded: bool
   }
 )
 (define-map Signals {proposal: principal, teamMember: principal} bool)
@@ -79,23 +80,28 @@
   (default-to false (map-get? Signers who))
 )
 
-(define-read-only (get-proposal-data (proposal principal))
-  (map-get? Proposals proposal)
-)
 
 (define-read-only (has-signaled (proposal principal) (who principal))
   (default-to false (map-get? Signals {proposal: proposal, teamMember: who}))
+)
+
+(define-read-only (get-proposal-data (proposal principal))
+  (map-get? Proposals proposal)
 )
 
 (define-read-only (get-signals-required)
   (var-get signalsRequired)
 )
 
-(define-read-only (get-total-signers)
+(define-read-only (get-signers (who principal))
+  (default-to false (map-get? Signers who))
+)
+
+(define-read-only (get-signers-count)
   (var-get totalSigners)
 )
 
-(define-read-only (get-signals (proposal principal))
+(define-read-only (get-signals-count (proposal principal))
   (default-to u0 (map-get? SignalCount proposal))
 )
 
@@ -106,10 +112,10 @@
     (let
       (
         (proposalPrincipal (contract-of proposal))
-        (signals (+ (get-signals proposalPrincipal) (if (has-signaled proposalPrincipal tx-sender) u0 u1)))
+        (signals (+ (get-signals-count proposalPrincipal) (if (has-signaled proposalPrincipal tx-sender) u0 u1)))
       )
       (asserts! (is-signer tx-sender) ERR_NOT_SIGNER)
-      (asserts! (map-insert Proposals (contract-of proposal) {proposer: tx-sender, confirmed: false}) ERR_PROPOSAL_ALREADY_EXISTS)
+      (asserts! (map-insert Proposals (contract-of proposal) {proposer: tx-sender, confirmed: false, concluded: false}) ERR_PROPOSAL_ALREADY_EXISTS)
       (asserts! (is-none (contract-call? .executor-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
       (print {event: "propose", proposal: proposal, proposer: tx-sender})
       (map-set Signals {proposal: (contract-of proposal), teamMember: tx-sender} true)
@@ -123,19 +129,18 @@
   (let
     (
       (proposalPrincipal (contract-of proposal))
-      (signals (+ (get-signals proposalPrincipal) (if (has-signaled proposalPrincipal tx-sender) u0 u1)))
+      (signals (+ (get-signals-count proposalPrincipal) (if (has-signaled proposalPrincipal tx-sender) u0 u1)))
+      (proposalData (unwrap-panic (get-proposal-data proposalPrincipal)))
     )
     (asserts! (is-signer tx-sender) ERR_NOT_SIGNER)
     (asserts! (is-none (contract-call? .executor-dao executed-at proposal)) ERR_ALREADY_EXECUTED)
     (and (>= signals (var-get signalsRequired))
-      (let
-        (
-          (proposalData (unwrap-panic (get-proposal-data proposalPrincipal)))
-        )
-        (merge proposalData {confirmed: true})
+      (begin
+        (map-set Proposals proposalPrincipal (merge proposalData {confirmed: true, concluded: true}))
         (try! (contract-call? .executor-dao execute proposal tx-sender))
       )
     )
+    (map-set Proposals proposalPrincipal (merge proposalData {concluded: true}))
     (map-set Signals {proposal: proposalPrincipal, teamMember: tx-sender} true)
     (map-set SignalCount proposalPrincipal signals)
     (ok signals)
