@@ -18,7 +18,7 @@
 
 (define-data-var executive principal tx-sender)
 (define-map ExecutedProposals principal uint)
-(define-map extensions principal bool)
+(define-map Extensions principal bool)
 
 ;; --- Authorization check
 
@@ -29,21 +29,21 @@
 ;; --- Extensions
 
 (define-read-only (is-extension (extension principal))
-	(default-to false (map-get? extensions extension))
+	(default-to false (map-get? Extensions extension))
 )
 
 (define-public (set-extension (extension principal) (enabled bool))
 	(begin
 		(try! (is-self-or-extension))
 		(print {event: "extension", extension: extension, enabled: enabled})
-		(ok (map-set extensions extension enabled))
+		(ok (map-set Extensions extension enabled))
 	)
 )
 
 (define-private (set-extensions-iter (item {extension: principal, enabled: bool}))
 	(begin
 		(print {event: "extension", extension: (get extension item), enabled: (get enabled item)})
-		(map-set extensions (get extension item) (get enabled item))
+		(map-set Extensions (get extension item) (get enabled item))
 	)
 )
 
@@ -71,11 +71,11 @@
 
 ;; --- Initial DAO setup with extensions, members, team members, and executive members
 
-(define-public (initialize (proposal <proposal-trait>))
+(define-public (init (proposal <proposal-trait>))
 	(let ((sender tx-sender))
 		(asserts! (is-eq sender (var-get executive)) ERR_UNAUTHORIZED)
 		(var-set executive (as-contract tx-sender))
-		(print {event: "initialize", proposal: proposal})
+		(print {event: "init", proposal: proposal})
 		(as-contract (execute proposal sender))
 	)
 )

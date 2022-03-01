@@ -33,7 +33,7 @@ Clarinet.test({
     data.result.expectErr().expectUint(SDE007_PROPOSAL_VOTING_CODES.ERR_UNAUTHORIZED);
 
     // 2a. initialize the DAO with enabled extensions and set deployer as a member
-    data = await Dao.initialize(deployer);
+    data = await Dao.init(deployer);
     data.result.expectOk().expectBool(true);
 
     // 3a. should not allow a startHeight less than the minimum 
@@ -63,7 +63,7 @@ Clarinet.test({
     let proposalDuration: number = 1440;
 
     // 1a. initialize the DAO with enabled extensions and set deployer as a member
-    data = await Dao.initialize(deployer);
+    data = await Dao.init(deployer);
     data.result.expectOk().expectBool(true);
     
     // 2a. should return false when you are not a member

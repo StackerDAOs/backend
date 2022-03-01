@@ -59,9 +59,9 @@ export class ExecutorDao {
     return { result: block.receipts[0].result, events: block.receipts[0].events };
   }
 
-  initialize(sender: Account) {
+  init(sender: Account) {
     let block = this.chain.mineBlock([
-      Tx.contractCall('executor-dao', 'initialize', [types.principal(PROPOSALS.sdp000Bootstrap)], sender.address),
+      Tx.contractCall('executor-dao', 'init', [types.principal(PROPOSALS.sdp000Bootstrap)], sender.address),
     ]);
 
     return { result: block.receipts[0].result, events: block.receipts[0].events };

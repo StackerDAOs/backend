@@ -19,13 +19,15 @@
 
 (impl-trait .extension-trait.extension-trait)
 
-(define-constant ERR_UNAUTHORIZED (err u2700))
-(define-constant ERR_NOT_SIGNER (err u2701))
-(define-constant ERR_ALREADY_EXECUTED (err u2703))
-(define-constant ERR_PROPOSAL_ALREADY_EXISTS (err u2704))
-(define-constant ERR_PROPOSAL_ALREADY_EXECUTED (err u2705))
+(define-constant ERR_UNAUTHORIZED (err u3600))
+(define-constant ERR_NOT_SIGNER (err u3601))
+(define-constant ERR_INVALID (err u3602))
+(define-constant ERR_ALREADY_EXECUTED (err u3603))
+(define-constant ERR_PROPOSAL_ALREADY_EXISTS (err u3604))
+(define-constant ERR_PROPOSAL_ALREADY_EXECUTED (err u3605))
 
-(define-data-var signalsRequired uint u2) ;; signals required for an execution.
+(define-data-var signalsRequired uint u2) ;; initial signals required for an execution.
+(define-data-var totalSigners uint u0) ;; initialize number of signers to zero.
 
 (define-map Signers principal bool)
 (define-map Proposals
@@ -46,16 +48,27 @@
 
 ;; --- Internal DAO functions
 
-(define-public (set-signer (who principal) (member bool))
+(define-public (add-signer (who principal))
   (begin
     (try! (is-dao-or-extension))
-    (ok (map-set Signers who member))
+    (map-set Signers who true)
+    (ok (var-set totalSigners (+ (var-get totalSigners) u1)))
+  )
+)
+
+(define-public (remove-signer (who principal))
+  (begin
+    (try! (is-dao-or-extension))
+    (asserts! (>= (- (var-get totalSigners) u1) (var-get signalsRequired)) ERR_INVALID)
+    (map-set Signers who false)
+    (ok (var-set totalSigners (- (var-get totalSigners) u1)))
   )
 )
 
 (define-public (set-signals-required (newRequirement uint))
   (begin
     (try! (is-dao-or-extension))
+    (asserts! (<= (var-get signalsRequired) (var-get totalSigners)) ERR_INVALID)
     (ok (var-set signalsRequired newRequirement))
   )
 )
@@ -76,6 +89,10 @@
 
 (define-read-only (get-signals-required)
   (var-get signalsRequired)
+)
+
+(define-read-only (get-total-signers)
+  (var-get totalSigners)
 )
 
 (define-read-only (get-signals (proposal principal))

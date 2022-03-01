@@ -43,13 +43,12 @@
 (define-public (set-whitelist (token principal) (enabled bool))
   (begin
     (try! (is-dao-or-extension))
-    (map-set WhitelistedAssets token enabled)
-    (ok true)
+    (ok (map-set WhitelistedAssets token enabled))
   )
 )
 
 (define-private (set-whitelist-iter (item {token: principal, enabled: bool}))
-  (begin 
+  (begin
     (print {event: "whitelist", token: (get token item), enabled: (get enabled item)})
     (map-set WhitelistedAssets (get token item) (get enabled item))
   )

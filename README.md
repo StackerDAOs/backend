@@ -100,7 +100,7 @@ Disable the ability to propose any emergency proposals.
 TBD.
 
 ```clojure
-(contract-call? .executor-dao initialize .sdp000-bootstrap)
+(contract-call? .executor-dao init .sdp000-bootstrap)
 ```
 
 To propose `sdp004-send-funds`, run the following commands one by one:
