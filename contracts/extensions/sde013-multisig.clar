@@ -110,15 +110,14 @@
   (let
     (
       (proposalPrincipal (contract-of proposal))
-      (signals (+ (get-signals-count proposalPrincipal) (if (has-signaled proposalPrincipal tx-sender) u0 u1)))
     )
     (asserts! (is-signer tx-sender) ERR_NOT_SIGNER)
-    (asserts! (map-insert Proposals (contract-of proposal) {proposer: tx-sender, concluded: false}) ERR_PROPOSAL_ALREADY_EXISTS)
+    (asserts! (map-insert Proposals proposalPrincipal {proposer: tx-sender, concluded: false}) ERR_PROPOSAL_ALREADY_EXISTS)
     (asserts! (is-none (contract-call? .executor-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
     (print {event: "propose", proposal: proposal, proposer: tx-sender})
-    (map-set Signals {proposal: (contract-of proposal), teamMember: tx-sender} true)
-    (map-set SignalCount proposalPrincipal signals)
-    (ok signals)
+    (map-set Signals {proposal: proposalPrincipal, teamMember: tx-sender} true)
+    (map-set SignalCount proposalPrincipal u1) ;; increment the signal count for proposer
+    (ok true)
   )
 )
 
