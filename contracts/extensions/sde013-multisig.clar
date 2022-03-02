@@ -125,7 +125,12 @@
   (let
     (
       (proposalPrincipal (contract-of proposal))
-      (signals (+ (get-signals-count proposalPrincipal) (if (has-signaled proposalPrincipal tx-sender) u0 u1)))
+      (signals 
+        (+ 
+          (get-signals-count proposalPrincipal) 
+          (if (has-signaled proposalPrincipal tx-sender) u0 u1)
+        )
+      )
       (proposalData (unwrap-panic (get-proposal-data proposalPrincipal)))
     )
     (asserts! (is-signer tx-sender) ERR_NOT_SIGNER)
@@ -133,7 +138,9 @@
     (and (>= signals (var-get signalsRequired))
       (begin
         (try! (contract-call? .executor-dao execute proposal tx-sender))
-        (map-set Proposals proposalPrincipal (merge proposalData {concluded: true}))
+        (map-set Proposals proposalPrincipal
+          (merge proposalData {concluded: true})
+        )
       )
     )
     (map-set Signals {proposal: proposalPrincipal, teamMember: tx-sender} true)
