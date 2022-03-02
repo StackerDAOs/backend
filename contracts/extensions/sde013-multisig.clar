@@ -34,7 +34,6 @@
   principal
   {
     proposer: principal,
-    confirmed: bool,
     concluded: bool
   }
 )
@@ -108,20 +107,18 @@
 ;; --- Public functions
 
 (define-public (add-proposal (proposal <proposal-trait>))
-  (begin
-    (let
-      (
-        (proposalPrincipal (contract-of proposal))
-        (signals (+ (get-signals-count proposalPrincipal) (if (has-signaled proposalPrincipal tx-sender) u0 u1)))
-      )
-      (asserts! (is-signer tx-sender) ERR_NOT_SIGNER)
-      (asserts! (map-insert Proposals (contract-of proposal) {proposer: tx-sender, confirmed: false, concluded: false}) ERR_PROPOSAL_ALREADY_EXISTS)
-      (asserts! (is-none (contract-call? .executor-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
-      (print {event: "propose", proposal: proposal, proposer: tx-sender})
-      (map-set Signals {proposal: (contract-of proposal), teamMember: tx-sender} true)
-      (map-set SignalCount proposalPrincipal signals)
-      (ok signals)
+  (let
+    (
+      (proposalPrincipal (contract-of proposal))
+      (signals (+ (get-signals-count proposalPrincipal) (if (has-signaled proposalPrincipal tx-sender) u0 u1)))
     )
+    (asserts! (is-signer tx-sender) ERR_NOT_SIGNER)
+    (asserts! (map-insert Proposals (contract-of proposal) {proposer: tx-sender, concluded: false}) ERR_PROPOSAL_ALREADY_EXISTS)
+    (asserts! (is-none (contract-call? .executor-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
+    (print {event: "propose", proposal: proposal, proposer: tx-sender})
+    (map-set Signals {proposal: (contract-of proposal), teamMember: tx-sender} true)
+    (map-set SignalCount proposalPrincipal signals)
+    (ok signals)
   )
 )
 
@@ -136,11 +133,10 @@
     (asserts! (is-none (contract-call? .executor-dao executed-at proposal)) ERR_ALREADY_EXECUTED)
     (and (>= signals (var-get signalsRequired))
       (begin
-        (map-set Proposals proposalPrincipal (merge proposalData {confirmed: true, concluded: true}))
         (try! (contract-call? .executor-dao execute proposal tx-sender))
+        (map-set Proposals proposalPrincipal (merge proposalData {concluded: true}))
       )
     )
-    (map-set Proposals proposalPrincipal (merge proposalData {concluded: true}))
     (map-set Signals {proposal: proposalPrincipal, teamMember: tx-sender} true)
     (map-set SignalCount proposalPrincipal signals)
     (ok signals)
