@@ -140,4 +140,4 @@ StackerDAO reserves different uint ranges for the main components.
 
 # License
 
-MIT license
+MIT license, all good as long as the copyright and permission notice are included. Although I ask developers that adopt ExecutorDAO in one way or another to make the adapter open source. (The client code that interfaces with the DAO.)
