@@ -1,6 +1,6 @@
 # StackerDAO
 
-StackerDAOs is a fork of ExecutorDAO, and models its design in the same modular and flexible way. The core tenets remain the same:
+StackerDAOs is a fork of [ExecutorDAO](https://github.com/MarvinJanssen/executor-dao), and models its design in the same modular and flexible way. The core tenets remain the same:
 
 1. Proposals are smart contracts.
 2. The core executes, the extensions give form.
