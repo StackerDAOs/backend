@@ -26,10 +26,10 @@
 (define-constant ERR_PROPOSAL_ALREADY_EXISTS (err u3604))
 (define-constant ERR_PROPOSAL_ALREADY_EXECUTED (err u3605))
 
-(define-data-var signalsRequired uint u2) ;; initial signals required for an execution.
-(define-data-var totalSigners uint u0) ;; initialize number of signers to zero.
+(define-data-var signers (list 10 principal) (list))
+(define-data-var signalsRequired uint u2)
+(define-data-var lastRemovedSigner (optional principal) none)
 
-(define-map Signers principal bool)
 (define-map Proposals
   principal
   {
@@ -51,24 +51,26 @@
 (define-public (add-signer (who principal))
   (begin
     (try! (is-dao-or-extension))
-    (map-set Signers who true)
-    (ok (var-set totalSigners (+ (var-get totalSigners) u1)))
+    (var-set signers (unwrap-panic (as-max-len? (append (var-get signers) who) u10)))
+    (ok true)
   )
 )
 
 (define-public (remove-signer (who principal))
   (begin
     (try! (is-dao-or-extension))
-    (asserts! (>= (- (var-get totalSigners) u1) (var-get signalsRequired)) ERR_INVALID)
-    (map-set Signers who false)
-    (ok (var-set totalSigners (- (var-get totalSigners) u1)))
+    (asserts! (>= (- (len (var-get signers)) u1) (var-get signalsRequired)) ERR_INVALID)
+    (asserts! (not (is-none (index-of (var-get signers) who))) ERR_INVALID)
+    (var-set lastRemovedSigner (some who))
+    (var-set signers (unwrap-panic (as-max-len? (filter remove-signer-filter (var-get signers)) u10)))
+    (ok true)
   )
 )
 
 (define-public (set-signals-required (newRequirement uint))
   (begin
     (try! (is-dao-or-extension))
-    (asserts! (<= (var-get signalsRequired) (var-get totalSigners)) ERR_INVALID)
+    (asserts! (<= (var-get signalsRequired) (len (var-get signers))) ERR_INVALID)
     (ok (var-set signalsRequired newRequirement))
   )
 )
@@ -76,7 +78,7 @@
 ;; --- Read only functions
 
 (define-read-only (is-signer (who principal))
-  (default-to false (map-get? Signers who))
+  (is-some (index-of (var-get signers) tx-sender))
 )
 
 
@@ -92,15 +94,15 @@
   (var-get signalsRequired)
 )
 
-(define-read-only (get-signers (who principal))
-  (default-to false (map-get? Signers who))
+(define-read-only (get-signers)
+  (var-get signers)
 )
 
 (define-read-only (get-signers-count)
-  (var-get totalSigners)
+  (len (var-get signers))
 )
 
-(define-read-only (get-signals-count (proposal principal))
+(define-read-only (get-proposal-signals (proposal principal))
   (default-to u0 (map-get? SignalCount proposal))
 )
 
@@ -127,7 +129,7 @@
       (proposalPrincipal (contract-of proposal))
       (signals 
         (+ 
-          (get-signals-count proposalPrincipal) 
+          (get-proposal-signals proposalPrincipal) 
           (if (has-signaled proposalPrincipal tx-sender) u0 u1)
         )
       )
@@ -147,6 +149,12 @@
     (map-set SignalCount proposalPrincipal signals)
     (ok signals)
   )
+)
+
+;; Private functions
+
+(define-private (remove-signer-filter (signer principal))
+  (not (is-eq signer (unwrap-panic (var-get lastRemovedSigner))))
 )
 
 ;; --- Extension callback
