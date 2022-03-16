@@ -13,10 +13,12 @@ export const EXTENSIONS = {
   sde007ProposalVoting: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde007-proposal-voting",
   sde008ProposalSubmission: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde008-proposal-submission",
   sde009Safe: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde009-safe",
+  sde013Multisig: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde013-multisig",
 };
 
 export const TEST_EXTENSIONS = {
   sde006TestMembership: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde006-test-membership",
+  sde009TestSafe: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde009-test-safe",
 };
 
 export const PROPOSALS = {
@@ -31,4 +33,5 @@ export const PROPOSALS = {
 
 export const TEST_PROPOSALS = {
   sdp008TestProposalSubmission: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sdp008-test-proposal-submission",
+  sdp009TestWhitelistAsset: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sdp009-test-whitelist-asset",
 };

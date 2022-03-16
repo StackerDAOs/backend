@@ -21,7 +21,8 @@ Clarinet.test({
 
     // initialize the DAO with enabled extensions for .sde009-safe
     data = await Dao.init(deployer);
-    assertEquals(data.events.length, 10);
+    // console.log(data)
+    assertEquals(data.events.length, 9);
     data.result.expectOk().expectBool(true);
 
     // // once already called, initialize can only be called by the dao or enabled extensions 

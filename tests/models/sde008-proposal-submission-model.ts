@@ -3,7 +3,7 @@ import {
   Chain, 
   Tx 
 } from '../utils/helpers.ts';
-import { PROPOSALS } from '../utils/contract-addresses.ts';
+import { TEST_PROPOSALS, PROPOSALS } from '../utils/contract-addresses.ts';
 
 export enum SDE008_PROPOSAL_SUBMISSION_CODES {
   ERR_UNAUTHORIZED = 3100,
