@@ -123,7 +123,7 @@ To propose `sdp004-send-funds`, run the following commands one by one:
 ::advance_chain_tip 1440
 
 ;; Conclude the proposal vote, thus executing it.
-(contract-call? .sde007-voting conclude .sdp004-send-funds)
+(contract-call? .sde007-proposal-voting conclude .sdp004-send-funds)
 
 ;; Check that the sde004-send-funds contract sent
 ;; the funds to the proper destination set in sdp004-send-funds.
