@@ -20,12 +20,12 @@ Clarinet.test({
     data.result.expectBool(false);
 
     // initialize the DAO with enabled extensions for .sde009-safe
-    data = await Dao.init(deployer);
-    assertEquals(data.events.length, 10);
+    data = await Dao.init(deployer, types.principal(PROPOSALS.sdp000Bootstrap));
+    assertEquals(data.events.length, 6);
     data.result.expectOk().expectBool(true);
 
     // // once already called, initialize can only be called by the dao or enabled extensions 
-    data = await Dao.init(deployer);
+    data = await Dao.init(deployer, types.principal(PROPOSALS.sdp000Bootstrap));
     assertEquals(data.events.length, 0);
     data.result.expectErr().expectUint(EXECUTOR_DAO_CODES.ERR_UNAUTHORIZED);
 

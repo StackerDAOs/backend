@@ -31,7 +31,7 @@ Clarinet.test({
     data.result.expectErr().expectUint(SDE008_PROPOSAL_SUBMISSION_CODES.ERR_UNAUTHORIZED);
 
     // 2a. initialize members and extensions
-    data = await Dao.init(deployer);
+    data = await Dao.init(deployer, types.principal(TEST_PROPOSALS.sdp008Bootstrap));
     data.result.expectOk().expectBool(true);
 
     // 2b. add proposal to change the membership contract address
