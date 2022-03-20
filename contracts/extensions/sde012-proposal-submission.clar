@@ -28,13 +28,12 @@
 (impl-trait .extension-trait.extension-trait)
 
 (define-constant ERR_UNAUTHORIZED (err u3500))
-(define-constant ERR_NOT_GOVERNANCE_TOKEN (err u3501))
-(define-constant ERR_INSUFFICIENT_BALANCE (err u3502))
-(define-constant ERR_UNKNOWN_PARAMETER (err u3503))
-(define-constant ERR_PROPOSAL_MINIMUM_START_DELAY (err u3504))
-(define-constant ERR_PROPOSAL_MAXIMUM_START_DELAY (err u3505))
+(define-constant ERR_NOT_NFT_OWNER (err u3501))
+(define-constant ERR_UNKNOWN_PARAMETER (err u3502))
+(define-constant ERR_PROPOSAL_MINIMUM_START_DELAY (err u3503))
+(define-constant ERR_PROPOSAL_MAXIMUM_START_DELAY (err u3504))
 
-(define-data-var nftPrincipal principal .nft-membership)
+(define-data-var nftContract principal .nft-membership)
 
 (define-map parameters (string-ascii 34) uint)
 
@@ -50,13 +49,6 @@
 )
 
 ;; --- Internal DAO functions
-
-(define-public (set-nft-contract (nft <sip009-nft-trait>))
-  (begin
-    (try! (is-dao-or-extension))
-    (ok (var-set nftPrincipal (contract-of nft)))
-  )
-)
 
 (define-public (set-parameter (parameter (string-ascii 34)) (value uint))
   (begin
@@ -83,31 +75,25 @@
 
 ;; --- Public functions
 
-;; Governance token
-
-(define-read-only (get-governance-token)
-  (var-get nftPrincipal)
-)
-
-(define-private (is-nft-contract (nft <sip009-nft-trait>))
-  (ok (asserts! (is-eq (contract-of nft) (var-get nftPrincipal)) ERR_NOT_GOVERNANCE_TOKEN))
-)
-
 ;; Parameters
 
 (define-read-only (get-parameter (parameter (string-ascii 34)))
   (ok (unwrap! (map-get? parameters parameter) ERR_UNKNOWN_PARAMETER))
 )
 
+(define-read-only (get-nft-contract)
+  (var-get nftContract)
+)
+
 ;; Proposals
 
-(define-public (propose (proposal <proposal-trait>) (startBlockHeight uint) (nft <sip009-nft-trait>))
+(define-public (propose (proposal <proposal-trait>) (tokenId uint) (startBlockHeight uint))
   (begin
-    (try! (is-nft-contract nft))
+    (asserts! (is-eq contract-caller (unwrap! (unwrap-panic (contract-call? .nft-membership get-owner tokenId)) ERR_NOT_NFT_OWNER)) ERR_UNAUTHORIZED)
     (asserts! (>= startBlockHeight (+ block-height (try! (get-parameter "minimumProposalStartDelay")))) ERR_PROPOSAL_MINIMUM_START_DELAY)
     (asserts! (<= startBlockHeight (+ block-height (try! (get-parameter "maximumProposalStartDelay")))) ERR_PROPOSAL_MAXIMUM_START_DELAY)
     ;; TODO: assert that you own an NFT
-    (contract-call? .sde001-proposal-voting add-proposal
+    (contract-call? .sde011-proposal-voting add-proposal
       proposal
       {
         startBlockHeight: startBlockHeight,
