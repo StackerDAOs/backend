@@ -4,7 +4,6 @@ import {
   Tx,
   types,
 } from '../utils/helpers.ts';
-import { PROPOSALS } from '../utils/contract-addresses.ts';
 
 export enum EXECUTOR_DAO_CODES {
   ERR_UNAUTHORIZED = 1000,
@@ -59,9 +58,9 @@ export class ExecutorDao {
     return { result: block.receipts[0].result, events: block.receipts[0].events };
   }
 
-  init(sender: Account) {
+  init(sender: Account, proposal: any) {
     let block = this.chain.mineBlock([
-      Tx.contractCall('executor-dao', 'init', [types.principal(PROPOSALS.sdp000Bootstrap)], sender.address),
+      Tx.contractCall('executor-dao', 'init', [proposal], sender.address),
     ]);
 
     return { result: block.receipts[0].result, events: block.receipts[0].events };

@@ -28,19 +28,19 @@
 (impl-trait .extension-trait.extension-trait)
 
 (define-constant ERR_UNAUTHORIZED (err u3400))
-(define-constant ERR_NOT_NFT_CONTRACT (err u3401))
-(define-constant ERR_NOT_NFT_OWNER (err u3402))
-(define-constant ERR_PROPOSAL_ALREADY_EXECUTED (err u3403))
-(define-constant ERR_PROPOSAL_ALREADY_EXISTS (err u3404))
-(define-constant ERR_UNKNOWN_PROPOSAL (err u3405))
-(define-constant ERR_PROPOSAL_ALREADY_CONCLUDED (err u3406))
-(define-constant ERR_PROPOSAL_INACTIVE (err u3407))
-(define-constant ERR_PROPOSAL_NOT_CONCLUDED (err u3408))
-(define-constant ERR_NO_VOTES_TO_RETURN (err u3409))
+(define-constant ERR_NOT_NFT_OWNER (err u3401))
+(define-constant ERR_PROPOSAL_ALREADY_EXECUTED (err u3402))
+(define-constant ERR_PROPOSAL_ALREADY_EXISTS (err u3403))
+(define-constant ERR_UNKNOWN_PROPOSAL (err u3404))
+(define-constant ERR_PROPOSAL_ALREADY_CONCLUDED (err u3405))
+(define-constant ERR_PROPOSAL_INACTIVE (err u3406))
+(define-constant ERR_PROPOSAL_NOT_CONCLUDED (err u3407))
+(define-constant ERR_NO_VOTES_TO_RETURN (err u3408))
+(define-constant ERR_ALREADY_VOTED (err u3409))
 (define-constant ERR_END_BLOCK_HEIGHT_NOT_REACHED (err u3410))
 (define-constant ERR_DISABLED (err u3411))
 
-(define-data-var nftPrincipal principal .nft-membership)
+(define-data-var nftContract principal .nft-membership)
 
 (define-map Proposals
   principal
@@ -55,7 +55,7 @@
   }
 )
 
-(define-map MemberTotalVotes {proposal: principal, voter: principal} uint)
+(define-map MemberVotes {proposal: principal, voter: principal, tokenId: uint} uint)
 
 ;; --- Authorization check
 
@@ -64,13 +64,6 @@
 )
 
 ;; --- Internal DAO functions
-
-(define-public (set-nft-contract (nft <sip009-nft-trait>))
-  (begin
-    (try! (is-dao-or-extension))
-    (ok (var-set nftPrincipal (contract-of nft)))
-  )
-)
 
 (define-public (add-proposal (proposal <proposal-trait>) (data {startBlockHeight: uint, endBlockHeight: uint, proposer: principal}))
   (begin
@@ -81,18 +74,6 @@
   )
 )
 
-;; --- Public functions
-
-;; Governance token
-
-(define-read-only (get-nft-contract)
-  (var-get nftPrincipal)
-)
-
-(define-private (is-nft-contract (nft <sip009-nft-trait>))
-  (ok (asserts! (is-eq (contract-of nft) (var-get nftPrincipal)) ERR_NOT_NFT_CONTRACT))
-)
-
 ;; Proposals
 
 (define-read-only (get-proposal-data (proposal principal))
@@ -101,22 +82,26 @@
 
 ;; Votes
 
-(define-read-only (get-current-total-votes (proposal principal) (voter principal))
-  (default-to u0 (map-get? MemberTotalVotes {proposal: proposal, voter: voter}))
+(define-read-only (get-current-total-votes (proposal principal) (voter principal) (tokenId uint))
+  (default-to u0 (map-get? MemberVotes {proposal: proposal, voter: voter, tokenId: tokenId}))
 )
 
-(define-public (vote (tokenId uint) (for bool) (proposal principal) (nft <sip009-nft-trait>))
+;; --- Read only functions
+
+(define-read-only (get-nft-contract)
+  (var-get nftContract)
+)
+
+(define-public (vote (tokenId uint) (for bool) (proposal principal))
   (let
     (
       (proposalData (unwrap! (map-get? Proposals proposal) ERR_UNKNOWN_PROPOSAL))
     )
-    (try! (is-nft-contract nft))
-    (asserts! (is-eq contract-caller (unwrap! (unwrap-panic (contract-call? nft get-owner tokenId)) ERR_NOT_NFT_OWNER)) ERR_UNAUTHORIZED)
+    (asserts! (is-eq contract-caller (unwrap! (unwrap-panic (contract-call? .nft-membership get-owner tokenId)) ERR_NOT_NFT_OWNER)) ERR_UNAUTHORIZED)
     (asserts! (>= block-height (get startBlockHeight proposalData)) ERR_PROPOSAL_INACTIVE)
     (asserts! (< block-height (get endBlockHeight proposalData)) ERR_PROPOSAL_INACTIVE)
-    (map-set MemberTotalVotes {proposal: proposal, voter: tx-sender}
-      (+ (get-current-total-votes proposal tx-sender) u1)
-    )
+    (asserts! (is-none (map-get? MemberVotes {proposal: proposal, voter: tx-sender, tokenId: tokenId})) ERR_ALREADY_VOTED)
+    (map-set MemberVotes {proposal: proposal, voter: tx-sender, tokenId: tokenId} u1)
     (map-set Proposals proposal
       (if for
         (merge proposalData {votesFor: (+ (get votesFor proposalData) u1)})
@@ -126,6 +111,34 @@
     (print {event: "vote", proposal: proposal, voter: tx-sender, for: for, amount: u1, tokenId: tokenId})
     (ok true)
   )
+)
+
+(define-private (many-votes-iter (item {tokenId: uint, for: bool, proposal: principal}))
+  (let
+    (
+      (tokenId (get tokenId item))
+      (for (get for item))
+      (proposal (get proposal item))
+      (proposalData (unwrap! (map-get? Proposals proposal) ERR_UNKNOWN_PROPOSAL))
+    )
+    (asserts! (is-eq contract-caller (unwrap! (unwrap-panic (contract-call? .nft-membership get-owner tokenId)) ERR_NOT_NFT_OWNER)) ERR_UNAUTHORIZED)
+    (asserts! (>= block-height (get startBlockHeight proposalData)) ERR_PROPOSAL_INACTIVE)
+    (asserts! (< block-height (get endBlockHeight proposalData)) ERR_PROPOSAL_INACTIVE)
+    (asserts! (is-none (map-get? MemberVotes {proposal: proposal, voter: tx-sender, tokenId: tokenId})) ERR_ALREADY_VOTED)
+    (map-set MemberVotes {proposal: proposal, voter: tx-sender, tokenId: tokenId} u1)
+    (map-set Proposals proposal
+      (if for
+        (merge proposalData {votesFor: (+ (get votesFor proposalData) u1)})
+        (merge proposalData {votesAgainst: (+ (get votesAgainst proposalData) u1)})
+      )
+    )
+    (print {event: "vote", proposal: proposal, voter: tx-sender, for: for, amount: u1, tokenId: tokenId})
+    (ok true)
+  )
+)
+
+(define-public (many-votes (votes (list 42 {tokenId: uint, for: bool, proposal: principal})))
+  (ok (map many-votes-iter votes))
 )
 
 ;; Conclusion

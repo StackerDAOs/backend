@@ -32,6 +32,8 @@ export const PROPOSALS = {
 };
 
 export const TEST_PROPOSALS = {
+  sdp006Bootstrap: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sdp006-test-bootstrap",
+  sdp008Bootstrap: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sdp008-test-bootstrap",
   sdp008TestProposalSubmission: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sdp008-test-proposal-submission",
   sdp009TestWhitelistAsset: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sdp009-test-whitelist-asset",
 };

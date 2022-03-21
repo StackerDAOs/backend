@@ -8,7 +8,7 @@ import { ExecutorDao } from '../models/executor-dao-model.ts';
 import { SDE006Membership, SDE006_MEMBERSHIP_CODES } from '../models/sde006-membership-model.ts';
 import { SDE008ProposalSubmission, SDE008_PROPOSAL_SUBMISSION_CODES } from '../models/sde008-proposal-submission-model.ts';
 import { SDE007ProposalVoting, SDE007_PROPOSAL_VOTING_CODES } from '../models/sde007-proposal-voting-model.ts';
-import { EXTENSIONS, PROPOSALS } from '../utils/contract-addresses.ts';
+import { EXTENSIONS, PROPOSALS, TEST_PROPOSALS } from '../utils/contract-addresses.ts';
 
 Clarinet.test({
   name: '😢 SDE006Membership',
@@ -33,7 +33,7 @@ Clarinet.test({
     data.result.expectErr().expectUint(SDE007_PROPOSAL_VOTING_CODES.ERR_UNAUTHORIZED);
 
     // 2a. initialize the DAO with enabled extensions and set deployer as a member
-    data = await Dao.init(deployer);
+    data = await Dao.init(deployer, types.principal(TEST_PROPOSALS.sdp006Bootstrap));
     data.result.expectOk().expectBool(true);
 
     // 3a. should not allow a startHeight less than the minimum 
@@ -63,7 +63,7 @@ Clarinet.test({
     let proposalDuration: number = 1440;
 
     // 1a. initialize the DAO with enabled extensions and set deployer as a member
-    data = await Dao.init(deployer);
+    data = await Dao.init(deployer, types.principal(TEST_PROPOSALS.sdp006Bootstrap));
     data.result.expectOk().expectBool(true);
     
     // 2a. should return false when you are not a member
