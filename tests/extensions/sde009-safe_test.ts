@@ -13,7 +13,7 @@ import { PROPOSALS, EXTENSIONS, TEST_EXTENSIONS, TEST_PROPOSALS } from '../utils
 
 
 Clarinet.test({
-  name: '😢 SDE009Safe - Token not whitelisted',
+  name: '😢 SDE009Safe - Whitelist Asset',
   async fn(chain: Chain, accounts: Map<string, Account>) {
     let deployer = accounts.get('deployer')!;
     let Safe = new SDE009Safe(chain);
@@ -65,8 +65,12 @@ Clarinet.test({
     let proposalDuration: number = 1440;
     let tokenToWhitelist: string = 'ST2JHG361ZXG51QTKY2NQCVBPPRRE2KZB1HR05NNC.token';
     let amount: number = 10;
+
+    // 1a. confirm token is not currently whitelisted
+    data = await Safe.isWhitelisted(deployer, types.principal(tokenToWhitelist));
+    data.result.expectBool(false)
     
-    // 1a. initialize the DAO with enabled extensions and set deployer as a member
+    // 2a. initialize the DAO with enabled extensions and set deployer as a member
     data = await Dao.init(deployer);
     data.result.expectOk().expectBool(true);
     
@@ -110,13 +114,10 @@ Clarinet.test({
       proposer: types.principal(deployer.address),
     });
 
-    // 6a. confirm that token is whitelisted  
+    // 6a. confirm that token is now whitelisted  
     data = await Safe.isWhitelisted(deployer, types.principal(tokenToWhitelist));
     data.result.expectBool(true)
 
-
-  
-    
   },
 });
 

@@ -169,14 +169,11 @@ depends_on = []
 path = "contracts/tests/proposals/sdp008-test-proposal-submission.clar"
 depends_on = ["proposal-trait", "executor-dao", "sde006-test-membership", "sde006-membership"]
 
+[contracts.sdp009-test-whitelist-asset]
+path = "contracts/tests/proposals/sdp009-test-whitelist-asset.clar"
+depends_on = ["proposal-trait", "executor-dao", "sde006-test-membership", "sde006-membership"]
+
 [contracts.sde009-test-safe]
 path = "contracts/tests/extensions/sde009-test-safe.clar"
 depends_on = ["executor-dao", "extension-trait", "sip009-nft-trait", "sip010-ft-trait"]
 
-[contracts.sdp007-whitelist-asset]
-path = "contracts/tests/proposals/sdp009-test-whitelist-asset.clar"
-depends_on = ["proposal-trait"]
-
-[contracts.sdp009-test-whitelist-asset]
-path = "contracts/tests/proposals/sdp009-test-whitelist-asset.clar"
-depends_on = ["proposal-trait", "executor-dao", "sde006-test-membership", "sde006-membership"]
