@@ -29,8 +29,6 @@
 			(list
 				{extension: .sde009-safe, enabled: true}
 				{extension: .sde013-multisig, enabled: true}
-				{extension: .sde011-proposal-voting, enabled: true}
-				{extension: .sde012-proposal-submission, enabled: true}
 			)
 		))
 

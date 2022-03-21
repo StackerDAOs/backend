@@ -92,7 +92,6 @@
     (asserts! (is-eq contract-caller (unwrap! (unwrap-panic (contract-call? .nft-membership get-owner tokenId)) ERR_NOT_NFT_OWNER)) ERR_UNAUTHORIZED)
     (asserts! (>= startBlockHeight (+ block-height (try! (get-parameter "minimumProposalStartDelay")))) ERR_PROPOSAL_MINIMUM_START_DELAY)
     (asserts! (<= startBlockHeight (+ block-height (try! (get-parameter "maximumProposalStartDelay")))) ERR_PROPOSAL_MAXIMUM_START_DELAY)
-    ;; TODO: assert that you own an NFT
     (contract-call? .sde011-proposal-voting add-proposal
       proposal
       {
