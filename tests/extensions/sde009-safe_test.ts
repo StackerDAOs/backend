@@ -71,7 +71,7 @@ Clarinet.test({
     data.result.expectBool(false)
     
     // 2a. initialize the DAO with enabled extensions and set deployer as a member
-    data = await Dao.init(deployer);
+    data = await Dao.init(deployer, types.principal(TEST_PROPOSALS.sdp008Bootstrap));
     data.result.expectOk().expectBool(true);
     
     // 3a. add proposal to whitelist an asset
