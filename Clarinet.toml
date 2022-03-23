@@ -93,6 +93,10 @@ depends_on = ["proposal-trait"]
 path = "contracts/proposals/sdp007-add-signer.clar"
 depends_on = ["proposal-trait"]
 
+[contracts.sdp008-whitelist-asset]
+path = "contracts/proposals/sdp008-whitelist-asset.clar"
+depends_on = ["proposal-trait", "executor-dao", "sde006-membership"]
+
 [contracts.executor-dao]
 path = "contracts/executor-dao.clar"
 depends_on = ["proposal-trait", "extension-trait"]
@@ -175,10 +179,6 @@ depends_on = ["proposal-trait", "executor-dao", "sde009-safe", "sde006-membershi
 
 [contracts.sdp008-test-proposal-submission]
 path = "contracts/tests/proposals/sdp008-test-proposal-submission.clar"
-depends_on = ["proposal-trait", "executor-dao", "sde006-test-membership", "sde006-membership"]
-
-[contracts.sdp009-test-whitelist-asset]
-path = "contracts/tests/proposals/sdp009-test-whitelist-asset.clar"
 depends_on = ["proposal-trait", "executor-dao", "sde006-test-membership", "sde006-membership"]
 
 [contracts.sde009-test-safe]

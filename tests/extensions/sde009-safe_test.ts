@@ -75,11 +75,11 @@ Clarinet.test({
     data.result.expectOk().expectBool(true);
     
     // 3a. add proposal to whitelist an asset
-    data = await ProposalSubmission.propose(deployer, types.principal(TEST_PROPOSALS.sdp009TestWhitelistAsset), types.uint(validStartHeight), types.principal(EXTENSIONS.sde006Membership));
+    data = await ProposalSubmission.propose(deployer, types.principal(PROPOSALS.sdp008WhitelistAsset), types.uint(validStartHeight), types.principal(EXTENSIONS.sde006Membership));
     data.result.expectOk().expectBool(true);
 
     // 3b. verify new proposal is added to the proposal queue
-    data = await ProposalVoting.getProposalData(deployer, types.principal(TEST_PROPOSALS.sdp009TestWhitelistAsset));
+    data = await ProposalVoting.getProposalData(deployer, types.principal(PROPOSALS.sdp008WhitelistAsset));
     data.result.expectSome().expectTuple({
       votesFor: types.uint(0),
       votesAgainst: types.uint(0),
@@ -92,18 +92,18 @@ Clarinet.test({
 
     // 4a. simulate approval votes for proposal
     chain.mineEmptyBlockUntil(validStartHeight); // mine empty blocks to get to the start height
-    let vote1 = await ProposalVoting.vote(voter1, types.bool(true), types.principal(TEST_PROPOSALS.sdp009TestWhitelistAsset), types.principal(EXTENSIONS.sde006Membership));
-    let vote2 = await ProposalVoting.vote(voter2, types.bool(true), types.principal(TEST_PROPOSALS.sdp009TestWhitelistAsset), types.principal(EXTENSIONS.sde006Membership));
+    let vote1 = await ProposalVoting.vote(voter1, types.bool(true), types.principal(PROPOSALS.sdp008WhitelistAsset), types.principal(EXTENSIONS.sde006Membership));
+    let vote2 = await ProposalVoting.vote(voter2, types.bool(true), types.principal(PROPOSALS.sdp008WhitelistAsset), types.principal(EXTENSIONS.sde006Membership));
     vote1.result.expectOk().expectBool(true);
     vote2.result.expectOk().expectBool(true);
 
     // 4b. conclude approval vote for the proposal
     chain.mineEmptyBlockUntil(validStartHeight + proposalDuration); // mine empty blocks to get to the end block height
-    data = await ProposalVoting.conclude(deployer, types.principal(TEST_PROPOSALS.sdp009TestWhitelistAsset));
+    data = await ProposalVoting.conclude(deployer, types.principal(PROPOSALS.sdp008WhitelistAsset));
     data.result.expectOk().expectBool(true);
 
     // 5a. verify the proposal data is updated
-    data = await ProposalVoting.getProposalData(deployer, types.principal(TEST_PROPOSALS.sdp009TestWhitelistAsset));
+    data = await ProposalVoting.getProposalData(deployer, types.principal(PROPOSALS.sdp008WhitelistAsset));
     data.result.expectSome().expectTuple({
       votesFor: types.uint(2),
       votesAgainst: types.uint(0),

@@ -29,11 +29,11 @@ export const PROPOSALS = {
   sdp004SendFunds: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sdp004-send-funds",
   sdp005DisableEmergencyProposal: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sdp005-disable-emergency-proposal",
   sdp006AddMember: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sdp006-add-member",
+  sdp008WhitelistAsset: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sdp008-whitelist-asset",
 };
 
 export const TEST_PROPOSALS = {
   sdp006Bootstrap: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sdp006-test-bootstrap",
   sdp008Bootstrap: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sdp008-test-bootstrap",
   sdp008TestProposalSubmission: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sdp008-test-proposal-submission",
-  sdp009TestWhitelistAsset: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sdp009-test-whitelist-asset",
 };
