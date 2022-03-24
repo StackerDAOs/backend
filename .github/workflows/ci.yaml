@@ -1,0 +1,29 @@
+name: CI
+on: [push]
+
+jobs:
+  check:
+    name: Clarinet check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          components: rustfmt
+          override: true
+
+      - name: Install clarinet
+        run: chmod +x ./bin/install_clarinet.sh && ./bin/install_clarinet.sh
+
+      - name: Run clarinet check
+        run: clarinet check
+
+      - name: Run clarinet test
+        run: clarinet test
