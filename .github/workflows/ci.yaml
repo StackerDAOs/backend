@@ -19,6 +19,11 @@ jobs:
           components: rustfmt
           override: true
 
-      # TODO: install clarinet
       - name: Install clarinet
-        run: chmod +x ./bin/check.sh && ./bin/check.sh
+        run: chmod +x .bin/install_clarinet.sh && .bin/install_clarinet.sh
+
+      - name: Run clarinet check
+        run: clarinet check
+
+      - name: Run clarinet test
+        run: clarinet test
