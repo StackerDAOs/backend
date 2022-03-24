@@ -9,3 +9,4 @@ chmod +x ./clarinet
 mv ./clarinet /usr/local/bin
 
 clarinet check
+clarinet test
