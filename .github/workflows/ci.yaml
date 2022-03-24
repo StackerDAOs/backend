@@ -21,4 +21,4 @@ jobs:
 
       # TODO: install clarinet
       - name: Install clarinet
-        run: ls
+        run: chmod +x ./bin/check.sh && ./bin/check.sh
