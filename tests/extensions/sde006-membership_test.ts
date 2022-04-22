@@ -5,7 +5,7 @@ import {
   types,
 } from '../utils/helpers.ts';
 import { ExecutorDao } from '../models/executor-dao-model.ts';
-import { SDE006Membership, SDE006_MEMBERSHIP_CODES } from '../models/sde006-membership-model.ts';
+import { SDE006Membership, SDE006_MEMBERSHIP_CODES } from '../models/sde-membership-model.ts';
 import { SDE008ProposalSubmission, SDE008_PROPOSAL_SUBMISSION_CODES } from '../models/sde008-proposal-submission-model.ts';
 import { SDE007ProposalVoting, SDE007_PROPOSAL_VOTING_CODES } from '../models/sde007-proposal-voting-model.ts';
 import { EXTENSIONS, PROPOSALS, TEST_PROPOSALS } from '../utils/contract-addresses.ts';

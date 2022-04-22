@@ -23,10 +23,10 @@
     ;; Enable genesis extensions.
     (try! (contract-call? .executor-dao set-extensions
       (list
-        {extension: .sde006-membership, enabled: true}
-        {extension: .sde009-safe, enabled: true}
-        {extension: .sde007-proposal-voting, enabled: true}
-        {extension: .sde008-proposal-submission, enabled: true}
+        {extension: .sde-membership, enabled: true}
+        {extension: .sde-vault, enabled: true}
+        {extension: .sde-proposal-voting-with-members, enabled: true}
+        {extension: .sde-proposal-submission-with-members, enabled: true}
       )
     ))
 

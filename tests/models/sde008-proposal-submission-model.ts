@@ -22,7 +22,7 @@ export class SDE008ProposalSubmission {
 
   setMemberContract(sender: Account, memberContract: string) {
     let block = this.chain.mineBlock([
-      Tx.contractCall('sde008-proposal-submission', 'set-member-contract', [memberContract], sender.address),
+      Tx.contractCall('sde-proposal-submission-with-members', 'set-member-contract', [memberContract], sender.address),
     ]);
 
     return { result: block.receipts[0].result, events: block.receipts[0].events };
@@ -30,7 +30,7 @@ export class SDE008ProposalSubmission {
 
   setParameter(sender: Account, parameter: string, value: string) {
     let block = this.chain.mineBlock([
-      Tx.contractCall('sde008-proposal-submission', 'set-parameter', [parameter, value], sender.address),
+      Tx.contractCall('sde-proposal-submission-with-members', 'set-parameter', [parameter, value], sender.address),
     ]);
 
     return { result: block.receipts[0].result, events: block.receipts[0].events };
@@ -38,7 +38,7 @@ export class SDE008ProposalSubmission {
 
   setParameters(sender: Account, list: string) {
     let block = this.chain.mineBlock([
-      Tx.contractCall('sde008-proposal-submission', 'set-parameters', [list], sender.address),
+      Tx.contractCall('sde-proposal-submission-with-members', 'set-parameters', [list], sender.address),
     ]);
 
     return { result: block.receipts[0].result, events: block.receipts[0].events };
@@ -46,7 +46,7 @@ export class SDE008ProposalSubmission {
 
   getMemberContract(sender: Account) {
     let block = this.chain.mineBlock([
-      Tx.contractCall('sde008-proposal-submission', 'get-member-contract', [], sender.address),
+      Tx.contractCall('sde-proposal-submission-with-members', 'get-member-contract', [], sender.address),
     ]);
 
     return { result: block.receipts[0].result, events: block.receipts[0].events };
@@ -54,7 +54,7 @@ export class SDE008ProposalSubmission {
 
   isMemberContract(sender: Account, memberContract: string) {
     let block = this.chain.mineBlock([
-      Tx.contractCall('sde008-proposal-submission', 'is-member-contract', [memberContract], sender.address),
+      Tx.contractCall('sde-proposal-submission-with-members', 'is-member-contract', [memberContract], sender.address),
     ]);
 
     return { result: block.receipts[0].result, events: block.receipts[0].events };
@@ -62,7 +62,7 @@ export class SDE008ProposalSubmission {
 
   getParameter(sender: Account, parameter: string) {
     let block = this.chain.mineBlock([
-      Tx.contractCall('sde008-proposal-submission', 'get-parameter', [parameter], sender.address),
+      Tx.contractCall('sde-proposal-submission-with-members', 'get-parameter', [parameter], sender.address),
     ]);
 
     return { result: block.receipts[0].result, events: block.receipts[0].events };
@@ -70,7 +70,7 @@ export class SDE008ProposalSubmission {
 
   propose(sender: Account, proposal: string, startBlockHeight: string, memberContract: string) {
     let block = this.chain.mineBlock([
-      Tx.contractCall('sde008-proposal-submission', 'propose', [proposal, startBlockHeight, memberContract], sender.address),
+      Tx.contractCall('sde-proposal-submission-with-members', 'propose', [proposal, startBlockHeight, memberContract], sender.address),
     ]);
 
     return { result: block.receipts[0].result, events: block.receipts[0].events };
@@ -78,7 +78,7 @@ export class SDE008ProposalSubmission {
 
   callback(sender: Account, memo: string) {
     let block = this.chain.mineBlock([
-      Tx.contractCall('sde008-proposal-submission', 'callback', [memo], sender.address),
+      Tx.contractCall('sde-proposal-submission-with-members', 'callback', [memo], sender.address),
     ]);
 
     return { result: block.receipts[0].result, events: block.receipts[0].events };

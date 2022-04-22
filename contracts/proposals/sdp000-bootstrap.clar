@@ -27,22 +27,22 @@
 		;; Enable genesis extensions.
 		(try! (contract-call? .executor-dao set-extensions
 			(list
-				{extension: .sde009-safe, enabled: true}
-				{extension: .sde013-multisig, enabled: true}
+				{extension: .sde-vault, enabled: true}
+				{extension: .sde-multisig, enabled: true}
 			)
 		))
 
 		;; Whitelist fungible tokens in safe.
-		(try! (contract-call? .sde009-safe set-whitelists
+		(try! (contract-call? .sde-vault set-whitelists
 			(list
 				{token: .citycoin-token, enabled: true}
 			)
 		))
 
 		;; Set emergency team members.
-		(try! (contract-call? .sde013-multisig add-signer 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM))
-		(try! (contract-call? .sde013-multisig add-signer 'ST1SJ3DTE5DN7X54YDH5D64R3BCB6A2AG2ZQ8YPD5))
-		(try! (contract-call? .sde013-multisig add-signer 'ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG))
+		(try! (contract-call? .sde-multisig add-signer 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM))
+		(try! (contract-call? .sde-multisig add-signer 'ST1SJ3DTE5DN7X54YDH5D64R3BCB6A2AG2ZQ8YPD5))
+		(try! (contract-call? .sde-multisig add-signer 'ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG))
 
 		(print "...to be a completely separate network and separate block chain, yet share CPU power with Bitcoin.")
 		(ok true)

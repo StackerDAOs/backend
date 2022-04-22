@@ -22,9 +22,9 @@
 
 (define-public (execute (sender principal))
   (begin
-    (try! (contract-call? .sde013-multisig add-signer 'ST2JHG361ZXG51QTKY2NQCVBPPRRE2KZB1HR05NNC))
-    (try! (contract-call? .sde013-multisig add-signer 'ST2NEB84ASENDXKYGJPQW86YXQCEFEX2ZQPG87ND))
-    (try! (contract-call? .sde013-multisig set-signals-required u3))
+    (try! (contract-call? .sde-multisig add-signer 'ST2JHG361ZXG51QTKY2NQCVBPPRRE2KZB1HR05NNC))
+    (try! (contract-call? .sde-multisig add-signer 'ST2NEB84ASENDXKYGJPQW86YXQCEFEX2ZQPG87ND))
+    (try! (contract-call? .sde-multisig set-signals-required u3))
     (ok true)
   )
 )

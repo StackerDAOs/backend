@@ -9,13 +9,10 @@
 ;;  /___/_/|_| /_/ /___/_/|_/___/___/\____/_/|_/             
 ;;                                                           
 
-;; Title: SDE000 Governance Token
-;; Author: Marvin Janssen / StackerDAO Dev Team
-;; Depends-On: 
-;; Synopsis:
-;; This extension defines the governance token of StackerDAO.
+;; Title: Governance Token with Lockup
+;; Author: StackerDAO Dev Team
 ;; Description:
-;; The governance token is a simple SIP010-compliant fungible token
+;; The governance token is a simple SIP010-compliant fungible token 
 ;; with some added functions to make it easier to manage by
 ;; StackerDAO proposals and extensions.
 
@@ -42,14 +39,7 @@
 
 ;; --- Internal DAO functions
 
-(define-public (sdg-transfer (amount uint) (sender principal) (recipient principal))
-	(begin
-		(try! (is-dao-or-extension))
-		(ft-transfer? Stacker-DAO-Token amount sender recipient)
-	)
-)
-
-(define-public (sdg-lock (amount uint) (owner principal))
+(define-public (lock (amount uint) (owner principal))
 	(begin
 		(try! (is-dao-or-extension))
 		(try! (ft-burn? Stacker-DAO-Token amount owner))
@@ -57,7 +47,7 @@
 	)
 )
 
-(define-public (sdg-unlock (amount uint) (owner principal))
+(define-public (unlock (amount uint) (owner principal))
 	(begin
 		(try! (is-dao-or-extension))
 		(try! (ft-burn? Stacker-DAO-Token-Locked amount owner))
@@ -65,14 +55,14 @@
 	)
 )
 
-(define-public (sdg-mint (amount uint) (recipient principal))
+(define-public (mint (amount uint) (recipient principal))
 	(begin
 		(try! (is-dao-or-extension))
 		(ft-mint? Stacker-DAO-Token amount recipient)
 	)
 )
 
-(define-public (sdg-burn (amount uint) (owner principal))
+(define-public (burn (amount uint) (owner principal))
 	(begin
 		(try! (is-dao-or-extension))
 		(ft-burn? Stacker-DAO-Token amount owner)
@@ -109,14 +99,14 @@
 	)
 )
 
-(define-private (sdg-mint-many-iter (item {amount: uint, recipient: principal}))
+(define-private (mint-many-iter (item {amount: uint, recipient: principal}))
 	(ft-mint? Stacker-DAO-Token (get amount item) (get recipient item))
 )
 
-(define-public (sdg-mint-many (recipients (list 200 {amount: uint, recipient: principal})))
+(define-public (mint-many (recipients (list 200 {amount: uint, recipient: principal})))
 	(begin
 		(try! (is-dao-or-extension))
-		(ok (map sdg-mint-many-iter recipients))
+		(ok (map mint-many-iter recipients))
 	)
 )
 
@@ -155,15 +145,11 @@
 
 ;; --- Governance token traits
 
-(define-read-only (sdg-get-balance (who principal))
-	(get-balance who)
-)
-
-(define-read-only (sdg-has-percentage-balance (who principal) (factor uint))
+(define-read-only (has-percentage-balance (who principal) (factor uint))
 	(ok (>= (* (unwrap-panic (get-balance who)) factor) (* (unwrap-panic (get-total-supply)) u1000)))
 )
 
-(define-read-only (sdg-get-locked (owner principal))
+(define-read-only (get-locked (owner principal))
 	(ok (ft-get-balance Stacker-DAO-Token-Locked owner))
 )
 

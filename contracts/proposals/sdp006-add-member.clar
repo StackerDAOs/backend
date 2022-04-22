@@ -23,5 +23,5 @@
 (define-constant newMemberAddress 'ST2JHG361ZXG51QTKY2NQCVBPPRRE2KZB1HR05NNC)
 
 (define-public (execute (sender principal))
-  (contract-call? .sde006-membership set-member newMemberAddress true)
+  (contract-call? .sde-membership set-member newMemberAddress true)
 )

@@ -35,7 +35,7 @@
 (define-constant ERR_PROPOSAL_MINIMUM_START_DELAY (err u2604))
 (define-constant ERR_PROPOSAL_MAXIMUM_START_DELAY (err u2605))
 
-(define-data-var governanceTokenPrincipal principal .sde000-governance-token)
+(define-data-var governanceTokenPrincipal principal .sde-governance-token-with-lockup)
 
 (define-map parameters (string-ascii 34) uint)
 
@@ -101,8 +101,8 @@
 		(try! (is-governance-token governance-token))
 		(asserts! (>= startBlockHeight (+ block-height (try! (get-parameter "minimumProposalStartDelay")))) ERR_PROPOSAL_MINIMUM_START_DELAY)
 		(asserts! (<= startBlockHeight (+ block-height (try! (get-parameter "maximumProposalStartDelay")))) ERR_PROPOSAL_MAXIMUM_START_DELAY)
-		(asserts! (try! (contract-call? governance-token sdg-has-percentage-balance tx-sender (try! (get-parameter "proposeFactor")))) ERR_INSUFFICIENT_BALANCE)
-		(contract-call? .sde001-proposal-voting add-proposal
+		(asserts! (try! (contract-call? governance-token has-percentage-balance tx-sender (try! (get-parameter "proposeFactor")))) ERR_INSUFFICIENT_BALANCE)
+		(contract-call? .sde-proposal-voting-with-lockup add-proposal
 			proposal
 			{
 				startBlockHeight: startBlockHeight,

@@ -40,7 +40,7 @@
 (define-constant ERR_DISABLED (err u3010))
 (define-constant ERR_QUORUM_THRESHOLD_NOT_REACHED (err u3011))
 
-(define-data-var memberContractPrincipal principal .sde006-membership)
+(define-data-var memberContractPrincipal principal .sde-membership)
 (define-data-var quorumThresholdPercentage uint u10)
 
 (define-map Proposals

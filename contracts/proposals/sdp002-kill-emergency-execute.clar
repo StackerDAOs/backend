@@ -20,5 +20,5 @@
 (impl-trait .proposal-trait.proposal-trait)
 
 (define-public (execute (sender principal))
-	(contract-call? .executor-dao set-extension .sde004-emergency-execute false)
+	(contract-call? .executor-dao set-extension .sde-emergency-execute false)
 )

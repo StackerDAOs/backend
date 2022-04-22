@@ -29,7 +29,7 @@ export class SDE007ProposalVoting {
 
   isMemberContract(sender: Account, memberContract: string) {
     let block = this.chain.mineBlock([
-      Tx.contractCall('sde007-proposal-voting', 'is-member-contract', [memberContract], sender.address),
+      Tx.contractCall('sde-proposal-voting-with-members', 'is-member-contract', [memberContract], sender.address),
     ]);
 
     return { result: block.receipts[0].result, events: block.receipts[0].events };
@@ -37,7 +37,7 @@ export class SDE007ProposalVoting {
 
   getProposalData(sender: Account, proposal: string) {
     let block = this.chain.mineBlock([
-      Tx.contractCall('sde007-proposal-voting', 'get-proposal-data', [proposal], sender.address),
+      Tx.contractCall('sde-proposal-voting-with-members', 'get-proposal-data', [proposal], sender.address),
     ]);
 
     return { result: block.receipts[0].result, events: block.receipts[0].events };
@@ -45,7 +45,7 @@ export class SDE007ProposalVoting {
 
   vote(sender: Account, voteFor: string, proposal: string, memberContract: string) {
     let block = this.chain.mineBlock([
-      Tx.contractCall('sde007-proposal-voting', 'vote', [voteFor, proposal, memberContract], sender.address),
+      Tx.contractCall('sde-proposal-voting-with-members', 'vote', [voteFor, proposal, memberContract], sender.address),
     ]);
 
     return { result: block.receipts[0].result, events: block.receipts[0].events };
@@ -53,7 +53,7 @@ export class SDE007ProposalVoting {
 
   conclude(sender: Account, proposal: string) {
     let block = this.chain.mineBlock([
-      Tx.contractCall('sde007-proposal-voting', 'conclude', [proposal], sender.address),
+      Tx.contractCall('sde-proposal-voting-with-members', 'conclude', [proposal], sender.address),
     ]);
 
     return { result: block.receipts[0].result, events: block.receipts[0].events };

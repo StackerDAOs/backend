@@ -30,11 +30,11 @@
 (define-public (execute (sender principal))
   (let
     (
-      (currentBalance (stx-get-balance .sde009-safe))
+      (currentBalance (stx-get-balance .sde-vault))
       (amount (/ (* currentBalance percentage) u100))
     )
     (asserts! (> currentBalance amount) ERR_NOT_ENOUGH_FUNDS)
     ;; Send 30% of the current funds in the vault
-    (contract-call? .sde009-safe send-stx amount 'STNHKEPYEPJ8ET55ZZ0M5A34J0R3N5FM2CMMMAZ6)
+    (contract-call? .sde-vault send-stx amount 'STNHKEPYEPJ8ET55ZZ0M5A34J0R3N5FM2CMMMAZ6)
   )
 )

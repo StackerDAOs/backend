@@ -77,7 +77,7 @@
 	(begin
 		(asserts! (is-emergency-team-member tx-sender) ERR_NOT_EMERGENCY_TEAM_MEMBER)
 		(asserts! (< block-height (var-get emergencyTeamSunsetHeight)) ERR_SUNSET_HEIGHT_REACHED)
-		(contract-call? .sde001-proposal-voting add-proposal proposal
+		(contract-call? .sde-proposal-voting-with-lockup add-proposal proposal
 			{
 				startBlockHeight: block-height,
 				endBlockHeight: (+ block-height (var-get emergencyProposalDuration)),

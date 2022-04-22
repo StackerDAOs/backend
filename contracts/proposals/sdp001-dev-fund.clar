@@ -28,15 +28,15 @@
 (define-public (execute (sender principal))
 	(let
 		(
-			(totalSupply (unwrap-panic (contract-call? .sde000-governance-token get-total-supply)))
+			(totalSupply (unwrap-panic (contract-call? .sde-governance-token-with-lockup get-total-supply)))
 			(devFundAmount (/ (* totalSupply DEV_FUND_PERCENTAGE) u100))
 		)
-		(try! (contract-call? .executor-dao set-extension .sde005-dev-fund true))
-		(try! (contract-call? .sde005-dev-fund set-allowance-start-height block-height))
-		(try! (contract-call? .sde005-dev-fund set-developer-allowances (list
+		(try! (contract-call? .executor-dao set-extension .sde-dev-fund true))
+		(try! (contract-call? .sde-dev-fund set-allowance-start-height block-height))
+		(try! (contract-call? .sde-dev-fund set-developer-allowances (list
 			{who: 'ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG, allowance: u100}
 			{who: 'ST2JHG361ZXG51QTKY2NQCVBPPRRE2KZB1HR05NNC, allowance: u20}
 		)))
-		(contract-call? .sde000-governance-token sdg-mint devFundAmount .sde005-dev-fund)
+		(contract-call? .sde-governance-token-with-lockup mint devFundAmount .sde-dev-fund)
 	)
 )

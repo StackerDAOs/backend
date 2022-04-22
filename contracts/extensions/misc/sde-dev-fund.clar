@@ -68,7 +68,7 @@
 (define-public (transfer (amount uint) (recipient principal) (memo (optional (buff 34))))
 	(begin
 		(try! (is-dao-or-extension))
-		(as-contract (contract-call? .sde000-governance-token transfer amount tx-sender recipient memo))
+		(as-contract (contract-call? .sde-governance-token-with-lockup transfer amount tx-sender recipient memo))
 	)
 )
 
@@ -95,7 +95,7 @@
 		(asserts! (> allowance u0) ERR_NO_ALLOWANCE)
 		(asserts! (< claimCount maxClaims) ERR_ALREADY_CLAIMED)
 		(map-set ClaimCounts tx-sender maxClaims)
-		(as-contract (contract-call? .sde000-governance-token transfer (* (- maxClaims claimCount) allowance) tx-sender developer memo))
+		(as-contract (contract-call? .sde-governance-token-with-lockup transfer (* (- maxClaims claimCount) allowance) tx-sender developer memo))
 	)
 )
 

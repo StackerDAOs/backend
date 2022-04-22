@@ -3,16 +3,16 @@ export const CONTRACTS = {
 };
 
 export const EXTENSIONS = {
-  sde000GovernanceToken: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde000-governance-token",
-  sde001ProposalVoting: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde001-proposal-voting",
-  sde002ProposalSubmission: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde002-proposal-submission",
-  sde003EmergencyProposals: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde003-emergency-proposals",
-  sde004EmergencyExecute: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde004-emergency-execute",
-  sde005DevFund: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde005-dev-fund",
-  sde006Membership: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde006-membership",
-  sde007ProposalVoting: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde007-proposal-voting",
-  sde008ProposalSubmission: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde008-proposal-submission",
-  sde009Safe: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde009-safe",
+  sde000GovernanceToken: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde-governance-token-with-lockup",
+  sde001ProposalVoting: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde-proposal-voting-with-lockup",
+  sde002ProposalSubmission: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde-proposal-submission-with-lockup",
+  sde003EmergencyProposals: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde-emergency-proposals",
+  sde004EmergencyExecute: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde-emergency-execute",
+  sde005DevFund: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde-dev-fund",
+  sde006Membership: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde-membership",
+  sde007ProposalVoting: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde-proposal-voting-with-members",
+  sde008ProposalSubmission: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde-proposal-submission-with-members",
+  sde009Safe: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde-vault",
 };
 
 export const TEST_EXTENSIONS = {

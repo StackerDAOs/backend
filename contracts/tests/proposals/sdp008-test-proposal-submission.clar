@@ -26,11 +26,11 @@
 (define-public (execute (sender principal))
   (begin
     (try! (contract-call? .executor-dao set-extension .sde006-test-membership true))
-    (try! (contract-call? .sde008-proposal-submission set-member-contract .sde006-test-membership))
-    (try! (contract-call? .executor-dao set-extension .sde006-membership false))
-    (try! (contract-call? .sde008-proposal-submission set-parameter "proposalDuration" u2016)) ;; increase proposal duration to 2 weeks
+    (try! (contract-call? .sde-proposal-submission-with-members set-member-contract .sde006-test-membership))
+    (try! (contract-call? .executor-dao set-extension .sde-membership false))
+    (try! (contract-call? .sde-proposal-submission-with-members set-parameter "proposalDuration" u2016)) ;; increase proposal duration to 2 weeks
     ;; set min delay to 2 days and max delay to 14 days
-    (try! (contract-call? .sde008-proposal-submission set-parameters 
+    (try! (contract-call? .sde-proposal-submission-with-members set-parameters 
       (list
         {parameter: "minimumProposalStartDelay", value: u288}
         {parameter: "maximumProposalStartDelay", value: u2016}

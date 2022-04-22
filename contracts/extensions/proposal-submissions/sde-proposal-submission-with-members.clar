@@ -9,38 +9,38 @@
 ;;  /___/_/|_| /_/ /___/_/|_/___/___/\____/_/|_/             
 ;;                                                           
 
-;; Title: SDE012 Proposal Submission
+;; Title: SDE008 Proposal Submission
 ;; Author: StackerDAO Dev Team
-;; Depends-On: SDE0011
+;; Depends-On: SDE007
 ;; Synopsis:
-;; This extension part of the core of StackerDAO. It allows NFT
-;; holders to submit proposals when they hold at least 1 NFT.
+;; This extension part of the core of StackerDAO. It allows governance token
+;; holders to submit proposals when they hold at least n% percentage of the
+;; token supply.
 ;; Description:
-;; Proposals may be submitted by anyone that holds at least 1
-;; token. Any submission is subject to a pre-defined start delay before voting
+;; Proposals may be submitted by anyone that holds at least n% of governance
+;; tokens. Any submission is subject to a pre-defined start delay before voting
 ;; can begin, and will then run for a pre-defined duration. The percentage,
 ;; start delay, and proposal duration can all by changed by means of a future
 ;; proposal.
 
 (use-trait proposal-trait .proposal-trait.proposal-trait)
-(use-trait sip009-nft-trait .sip009-nft-trait.sip009-nft-trait)
+(use-trait member-trait .member-trait.member-trait)
 
 (impl-trait .extension-trait.extension-trait)
 
-(define-constant ERR_UNAUTHORIZED (err u3500))
-(define-constant ERR_NOT_NFT_OWNER (err u3501))
-(define-constant ERR_UNKNOWN_PARAMETER (err u3502))
-(define-constant ERR_PROPOSAL_MINIMUM_START_DELAY (err u3503))
-(define-constant ERR_PROPOSAL_MAXIMUM_START_DELAY (err u3504))
+(define-constant ERR_UNAUTHORIZED (err u3100))
+(define-constant ERR_NOT_MEMBER_CONTRACT (err u3101))
+(define-constant ERR_UNKNOWN_PARAMETER (err u3102))
+(define-constant ERR_PROPOSAL_MINIMUM_START_DELAY (err u3103))
+(define-constant ERR_PROPOSAL_MAXIMUM_START_DELAY (err u3104))
 
-(define-data-var nftContract principal .nft-membership)
+(define-data-var memberContractPrincipal principal .sde-membership)
 
-(define-map parameters (string-ascii 34) uint)
+(define-map Parameters (string-ascii 34) uint)
 
-(map-set parameters "proposeFactor" u100000) ;; 1% initially required to propose (100/n*1000).
-(map-set parameters "proposalDuration" u1440) ;; ~10 days based on a ~10 minute block time.
-(map-set parameters "minimumProposalStartDelay" u144) ;; ~1 day minimum delay before voting on a proposal can start.
-(map-set parameters "maximumProposalStartDelay" u1008) ;; ~7 days maximum delay before voting on a proposal can start.
+(map-set Parameters "proposalDuration" u1440) ;; ~10 days based on a ~10 minute block time.
+(map-set Parameters "minimumProposalStartDelay" u144) ;; ~1 day minimum delay before voting on a proposal can start.
+(map-set Parameters "maximumProposalStartDelay" u1008) ;; ~7 days maximum delay before voting on a proposal can start.
 
 ;; --- Authorization check
 
@@ -50,11 +50,18 @@
 
 ;; --- Internal DAO functions
 
+(define-public (set-member-contract (memberContract <member-trait>))
+  (begin
+    (try! (is-dao-or-extension))
+    (ok (var-set memberContractPrincipal (contract-of memberContract)))
+  )
+)
+
 (define-public (set-parameter (parameter (string-ascii 34)) (value uint))
   (begin
     (try! (is-dao-or-extension))
     (try! (get-parameter parameter))
-    (ok (map-set parameters parameter value))
+    (ok (map-set Parameters parameter value))
   )
 )
 
@@ -62,7 +69,7 @@
   (begin
     (try! previous)
     (try! (get-parameter (get parameter item)))
-    (ok (map-set parameters (get parameter item) (get value item)))
+    (ok (map-set Parameters (get parameter item) (get value item)))
   )
 )
 
@@ -75,24 +82,24 @@
 
 ;; --- Public functions
 
-;; Parameters
+(define-read-only (get-member-contract)
+  (var-get memberContractPrincipal)
+)
+
+(define-private (is-member-contract (memberContract <member-trait>))
+  (ok (asserts! (is-eq (contract-of memberContract) (get-member-contract)) ERR_NOT_MEMBER_CONTRACT))
+)
 
 (define-read-only (get-parameter (parameter (string-ascii 34)))
-  (ok (unwrap! (map-get? parameters parameter) ERR_UNKNOWN_PARAMETER))
+  (ok (unwrap! (map-get? Parameters parameter) ERR_UNKNOWN_PARAMETER))
 )
 
-(define-read-only (get-nft-contract)
-  (var-get nftContract)
-)
-
-;; Proposals
-
-(define-public (propose (proposal <proposal-trait>) (tokenId uint) (startBlockHeight uint))
+(define-public (propose (proposal <proposal-trait>) (startBlockHeight uint) (memberContract <member-trait>))
   (begin
-    (asserts! (is-eq contract-caller (unwrap! (unwrap-panic (contract-call? .nft-membership get-owner tokenId)) ERR_NOT_NFT_OWNER)) ERR_UNAUTHORIZED)
+    (try! (is-member-contract memberContract))
     (asserts! (>= startBlockHeight (+ block-height (try! (get-parameter "minimumProposalStartDelay")))) ERR_PROPOSAL_MINIMUM_START_DELAY)
     (asserts! (<= startBlockHeight (+ block-height (try! (get-parameter "maximumProposalStartDelay")))) ERR_PROPOSAL_MAXIMUM_START_DELAY)
-    (contract-call? .sde011-proposal-voting add-proposal
+    (contract-call? .sde-proposal-voting-with-members add-proposal
       proposal
       {
         startBlockHeight: startBlockHeight,

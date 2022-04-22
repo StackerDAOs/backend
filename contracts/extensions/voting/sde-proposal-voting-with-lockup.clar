@@ -39,7 +39,7 @@
 (define-constant ERR_END_BLOCK_HEIGHT_NOT_REACHED (err u2509))
 (define-constant ERR_DISABLED (err u2510))
 
-(define-data-var governanceTokenPrincipal principal .sde000-governance-token)
+(define-data-var governanceTokenPrincipal principal .sde-governance-token-with-lockup)
 
 (define-map Proposals
 	principal
@@ -117,7 +117,7 @@
 			)
 		)
 		(print {event: "vote", proposal: proposal, voter: tx-sender, for: for, amount: amount})
-		(contract-call? governanceToken sdg-lock amount tx-sender)
+		(contract-call? governanceToken lock amount tx-sender)
 	)
 )
 
@@ -146,7 +146,7 @@
 		)
 		(asserts! (get concluded proposalData) ERR_PROPOSAL_NOT_CONCLUDED)
 		(map-delete MemberTotalVotes {proposal: proposalPrincipal, voter: tx-sender, governanceToken: tokenPrincipal})
-		(contract-call? governanceToken sdg-unlock votes tx-sender)
+		(contract-call? governanceToken unlock votes tx-sender)
 	)
 )
 
