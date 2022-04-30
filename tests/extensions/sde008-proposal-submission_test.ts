@@ -22,12 +22,12 @@ Clarinet.test({
     let validStartHeight: number = 150;
     let proposalDuration: number = 1440;
 
-    // 1a. should return current member contract as sde006Membership
+    // 1a. should return current member contract as sdeMembership
     data = await ProposalSubmission.getMemberContract(deployer);
-    data.result.expectPrincipal(EXTENSIONS.sde006Membership);
+    data.result.expectPrincipal(EXTENSIONS.sdeMembership);
 
     // 1b. should return an err response unauthorized
-    data = await ProposalSubmission.setMemberContract(deployer, types.principal(EXTENSIONS.sde006Membership));
+    data = await ProposalSubmission.setMemberContract(deployer, types.principal(EXTENSIONS.sdeMembership));
     data.result.expectErr().expectUint(SDE008_PROPOSAL_SUBMISSION_CODES.ERR_UNAUTHORIZED);
 
     // 2a. initialize members and extensions
@@ -35,7 +35,7 @@ Clarinet.test({
     data.result.expectOk().expectBool(true);
 
     // 2b. add proposal to change the membership contract address
-    data = await ProposalSubmission.propose(deployer, types.principal(TEST_PROPOSALS.sdp008TestProposalSubmission), types.uint(validStartHeight), types.principal(EXTENSIONS.sde006Membership));
+    data = await ProposalSubmission.propose(deployer, types.principal(TEST_PROPOSALS.sdp008TestProposalSubmission), types.uint(validStartHeight), types.principal(EXTENSIONS.sdeMembership));
     data.result.expectOk().expectBool(true);
 
     // 2c. verify new proposal is added to the proposal queue
@@ -52,8 +52,8 @@ Clarinet.test({
 
     // 3a. simulate approval votes for proposal
     chain.mineEmptyBlockUntil(validStartHeight); // mine empty blocks to get to the start height
-    let vote1 = await ProposalVoting.vote(voter1, types.bool(true), types.principal(TEST_PROPOSALS.sdp008TestProposalSubmission), types.principal(EXTENSIONS.sde006Membership));
-    let vote2 = await ProposalVoting.vote(voter2, types.bool(true), types.principal(TEST_PROPOSALS.sdp008TestProposalSubmission), types.principal(EXTENSIONS.sde006Membership));
+    let vote1 = await ProposalVoting.vote(voter1, types.bool(true), types.principal(TEST_PROPOSALS.sdp008TestProposalSubmission), types.principal(EXTENSIONS.sdeMembership));
+    let vote2 = await ProposalVoting.vote(voter2, types.bool(true), types.principal(TEST_PROPOSALS.sdp008TestProposalSubmission), types.principal(EXTENSIONS.sdeMembership));
     vote1.result.expectOk().expectBool(true);
     vote2.result.expectOk().expectBool(true);
 
@@ -76,14 +76,14 @@ Clarinet.test({
 
     // 5a. verify the proposal is executed and the extension rules are updated
     data = await ProposalSubmission.getMemberContract(deployer);
-    data.result.expectPrincipal(TEST_EXTENSIONS.sde006TestMembership);
+    data.result.expectPrincipal(TEST_EXTENSIONS.sdeMembership);
 
-    // 5b. verify that sde006TestMembership is enabled
-    data = await Dao.isExtension(deployer, types.principal(TEST_EXTENSIONS.sde006TestMembership));
+    // 5b. verify that sdeMembership is enabled
+    data = await Dao.isExtension(deployer, types.principal(TEST_EXTENSIONS.sdeMembership));
     data.result.expectBool(true);
 
-    // 5c. verify that sde006Membership is disabled
-    data = await Dao.isExtension(deployer, types.principal(EXTENSIONS.sde006Membership));
+    // 5c. verify that sdeMembership is disabled
+    data = await Dao.isExtension(deployer, types.principal(EXTENSIONS.sdeMembership));
     data.result.expectBool(false);
 
     // 5d. check the proposal duration has been updated

@@ -165,8 +165,8 @@ depends_on = []
 path = "contracts/tests/proposals/sdp006-test-bootstrap.clar"
 depends_on = ["proposal-trait", "executor-dao", "sde-vault", "sde-membership", "sde-proposal-voting-with-members", "sde-proposal-submission-with-members"]
 
-[contracts.sde006-test-membership]
-path = "contracts/tests/extensions/sde006-test-membership.clar"
+[contracts.sde-test-membership]
+path = "contracts/tests/extensions/sde-test-membership.clar"
 depends_on = []
 
 [contracts.sdp008-test-bootstrap]
@@ -175,4 +175,4 @@ depends_on = ["proposal-trait", "executor-dao", "sde-vault", "sde-membership", "
 
 [contracts.sdp008-test-proposal-submission]
 path = "contracts/tests/proposals/sdp008-test-proposal-submission.clar"
-depends_on = ["proposal-trait", "executor-dao", "sde006-test-membership", "sde-membership"]
+depends_on = ["proposal-trait", "executor-dao", "sde-test-membership", "sde-membership"]

@@ -9,14 +9,14 @@ export const EXTENSIONS = {
   sde003EmergencyProposals: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde-emergency-proposals",
   sde004EmergencyExecute: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde-emergency-execute",
   sde005DevFund: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde-dev-fund",
-  sde006Membership: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde-membership",
+  sdeMembership: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde-membership",
   sde007ProposalVoting: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde-proposal-voting-with-members",
   sde008ProposalSubmission: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde-proposal-submission-with-members",
   sde009Safe: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde-vault",
 };
 
 export const TEST_EXTENSIONS = {
-  sde006TestMembership: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde006-test-membership",
+  sdeMembership: "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sde-test-membership",
 };
 
 export const PROPOSALS = {
