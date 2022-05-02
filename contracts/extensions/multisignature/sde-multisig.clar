@@ -62,7 +62,7 @@
 (define-public (remove-signer (who principal))
   (begin
     (try! (is-dao-or-extension))
-    (asserts! (>= (- (len (var-get signers)) u1) (var-get signalsRequired)) ERR_INVALID)
+    (asserts! (>= (- (get-signers-count) u1) (var-get signalsRequired)) ERR_INVALID)
     (asserts! (not (is-none (index-of (var-get signers) who))) ERR_INVALID)
     (var-set lastRemovedSigner (some who))
     (var-set signers (unwrap-panic (as-max-len? (filter remove-signer-filter (var-get signers)) u10)))
@@ -73,7 +73,7 @@
 (define-public (set-signals-required (newRequirement uint))
   (begin
     (try! (is-dao-or-extension))
-    (asserts! (<= (var-get signalsRequired) (len (var-get signers))) ERR_INVALID)
+    (asserts! (and (<= (var-get signalsRequired) (get-signers-count)) (<= newRequirement (get-signers-count))) ERR_INVALID)
     (ok (var-set signalsRequired newRequirement))
   )
 )
