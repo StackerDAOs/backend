@@ -63,7 +63,7 @@ depends_on = ["executor-dao", "extension-trait", "proposal-trait"]
 
 [contracts.sdp000-bootstrap]
 path = "contracts/proposals/sdp000-bootstrap.clar"
-depends_on = ["executor-dao", "proposal-trait", "extension-trait", "sde-governance-token-with-lockup", "sde-proposal-voting-with-lockup", "sde-proposal-submission-with-lockup", "sde-emergency-proposals", "sde-emergency-execute", "sde-membership", "sde-proposal-voting-with-members", "sde-proposal-submission-with-members", "sde-vault"]
+depends_on = ["executor-dao", "proposal-trait", "extension-trait", "sde-governance-token-with-lockup", "sde-proposal-voting-with-lockup", "sde-proposal-submission-with-lockup", "sde-emergency-proposals", "sde-emergency-execute", "sde-membership", "sde-proposal-voting-with-members", "sde-proposal-submission-with-members", "sde-vault", "sdp001-dev-fund"]
 
 [contracts.sdp001-dev-fund]
 path = "contracts/proposals/sdp001-dev-fund.clar"
@@ -160,10 +160,6 @@ depends_on = []
 [contracts.sip010-ft-trait]
 path = "contracts/traits/sip010-ft-trait.clar"
 depends_on = []
-
-[contracts.sdp006-test-bootstrap]
-path = "contracts/tests/proposals/sdp006-test-bootstrap.clar"
-depends_on = ["proposal-trait", "executor-dao", "sde-vault", "sde-membership", "sde-proposal-voting-with-members", "sde-proposal-submission-with-members"]
 
 [contracts.sde-test-membership]
 path = "contracts/tests/extensions/sde-test-membership.clar"
