@@ -22,6 +22,7 @@
 (define-constant ERR_NOT_ENOUGH_TOKENS (err u2403))
 (define-constant ERR_INVALID_WEIGHT (err u2404))
 (define-constant ERR_MUST_REVOKE_CURRENT_DELEGATION (err u2405))
+(define-constant ERR_NO_DELEGATION_TO_REVOKE (err u2406))
 
 (define-fungible-token Governance-Token)
 
@@ -103,24 +104,9 @@
 
 (define-public (transfer (amount uint) (sender principal) (recipient principal) (memo (optional (buff 34))))
 	(begin
-		(let
-			(
-				(delegateSender (map-get? Delegators sender))
-				(delegateRecipient (map-get? Delegators recipient))
-			)
-
-			(asserts! (or (is-eq tx-sender sender) (is-eq contract-caller sender)) ERR_NOT_TOKEN_OWNER)
-			(if (is-some delegateSender)
-				(begin
-					;; Decrement the delegated weight of the sender to their delegatee
-					(map-set Delegators (unwrap-panic (get delegatee delegateSender)) { delegatee: (unwrap-panic (get delegatee delegateSender)), weight: (- (unwrap-panic (get weight delegateSender)) amount) })
-					;; Delegate the power of the delegatee
-					(map-set Delegatees (unwrap-panic (get delegatee delegateSender)) (- (unwrap-panic (get weight delegateSender)) amount))
-				)
-				false
-			)
-			(ft-transfer? Governance-Token amount sender recipient)
-		)
+		(asserts! (or (is-eq tx-sender sender) (is-eq contract-caller sender)) ERR_NOT_TOKEN_OWNER)
+		(check-and-update-delegation amount sender recipient)
+		(ft-transfer? Governance-Token amount sender recipient)
 	)
 )
 
@@ -150,6 +136,25 @@
 
 ;; --- Delegate token traits
 
+(define-private (check-and-update-delegation (amount uint) (sender principal) (recipient principal))
+	(let
+		(
+			(delegateSender (map-get? Delegators sender))
+			(delegateRecipient (map-get? Delegators recipient))
+		)
+		
+		(if (is-some delegateSender)
+			(begin
+				;; Decrement the delegated weight of the sender to their delegatee
+				(map-set Delegators (unwrap-panic (get delegatee delegateSender)) { delegatee: (unwrap-panic (get delegatee delegateSender)), weight: (- (unwrap-panic (get weight delegateSender)) amount) })
+				;; Delegate the power of the delegatee
+				(map-set Delegatees (unwrap-panic (get delegatee delegateSender)) (- (unwrap-panic (get weight delegateSender)) amount))
+			)
+			false
+		)
+	)
+)
+
 (define-public (delegate-votes (delegatee principal) (delegator principal))
 	(begin
 		(asserts! (or (is-eq tx-sender delegator) (is-eq contract-caller delegator)) ERR_NOT_TOKEN_OWNER)
@@ -168,6 +173,7 @@
 (define-public (revoke-delegation (delegatee principal) (delegator principal))
 	(begin
 		(asserts! (or (is-eq tx-sender delegator) (is-eq contract-caller delegator)) ERR_NOT_TOKEN_OWNER)
+		(asserts! (is-some (map-get? Delegators delegator)) ERR_NO_DELEGATION_TO_REVOKE)
 		(map-delete Delegators delegator)
 		(ok (map-set Delegatees delegatee (- (unwrap-panic (map-get? Delegatees delegatee)) (unwrap-panic (get-balance delegator)))))
 	)
