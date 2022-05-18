@@ -24,6 +24,7 @@
 (define-constant ERR_NOT_TOKEN_OWNER (err u2401))
 (define-constant ERR_NOT_ENOUGH_TOKENS (err u2403))
 (define-constant ERR_INVALID_WEIGHT (err u2404))
+(define-constant ERR_MUST_REVOKE_CURRENT_DELEGATION (err u2405))
 
 (define-fungible-token Governance-Token)
 
@@ -151,27 +152,18 @@
 
 (define-public (delegate-votes (delegatee principal) (delegator principal))
 	(begin
-		(let
-			(
-				(currentDelegatee (unwrap-panic (map-get? Delegatees delegatee)))
-				(currentVotingWeight (unwrap-panic (map-get? Delegatees delegatee)))
-			)
-
-			(asserts! (or (is-eq tx-sender delegator) (is-eq contract-caller delegator)) ERR_NOT_TOKEN_OWNER)
-			(asserts! (> (unwrap-panic (get-balance delegator)) u0) ERR_INVALID_WEIGHT)
-			;; require revoke-delegation before delegating to another principal
-			(map-set Delegators delegator { delegatee: delegatee, weight: (unwrap-panic (get-balance delegator)) })
-			(ok (map-set Delegatees delegatee (+ (unwrap-panic (get-balance delegator)) currentVotingWeight)))
-		)
+		(asserts! (or (is-eq tx-sender delegator) (is-eq contract-caller delegator)) ERR_NOT_TOKEN_OWNER)
+		(asserts! (> (unwrap-panic (get-balance delegator)) u0) ERR_INVALID_WEIGHT)
+		(map-set Delegators delegator { delegatee: delegatee, weight: (unwrap-panic (get-balance delegator)) })
+		(ok (map-set Delegatees delegatee (unwrap-panic (get-balance delegator))))
 	)
 )
 
-(define-public (revoke-delegation (delegatee principal) (delegator principal) (weight uint))
+(define-public (revoke-delegation (delegatee principal) (delegator principal))
 	(begin
 		(asserts! (or (is-eq tx-sender delegator) (is-eq contract-caller delegator)) ERR_NOT_TOKEN_OWNER)
-		(asserts! (<= (unwrap-panic (get-balance delegator)) weight) ERR_INVALID_WEIGHT)
-		(map-set Delegators delegator { delegatee: delegatee, weight: weight })
-		(ok (map-set Delegatees delegatee weight))
+		(map-delete Delegators delegator)
+		(ok (map-set Delegatees delegatee (- (unwrap-panic (map-get? Delegatees delegatee)) (unwrap-panic (get-balance delegator)))))
 	)
 )
 
@@ -181,6 +173,10 @@
 
 (define-read-only (get-voting-weight (voter principal))
 	(ok (default-to u0 (map-get? Delegatees voter)))
+)
+
+(define-read-only (get-delegator (delegator principal))
+	(ok (map-get? Delegators delegator))
 )
 
 ;; --- Extension callback
