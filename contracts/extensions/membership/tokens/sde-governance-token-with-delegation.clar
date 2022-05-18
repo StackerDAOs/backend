@@ -9,12 +9,9 @@
 ;;  /___/_/|_| /_/ /___/_/|_/___/___/\____/_/|_/             
 ;;                                                           
 
-;; Title: Governance Token with Lockup
+;; Title: Governance Token with Delegation
 ;; Author: StackerDAO Dev Team
 ;; Description:
-;; The governance token is a simple SIP010-compliant fungible token 
-;; with some added functions to make it easier to manage by
-;; StackerDAO proposals and extensions.
 
 (impl-trait .delegate-token-trait.delegate-token-trait)
 (impl-trait .sip010-ft-trait.sip010-ft-trait)
@@ -33,7 +30,10 @@
 (define-data-var tokenUri (optional (string-utf8 256)) none)
 (define-data-var tokenDecimals uint u6)
 
+;; @notice Only one principal can be delegated to at a time
 (define-map Delegators principal { delegatee: principal, weight: uint })
+
+;; @notice Current voting weight of the delegatee
 (define-map Delegatees principal uint)
 
 ;; --- Authorization check
@@ -154,6 +154,8 @@
 	(begin
 		(asserts! (or (is-eq tx-sender delegator) (is-eq contract-caller delegator)) ERR_NOT_TOKEN_OWNER)
 		(asserts! (> (unwrap-panic (get-balance delegator)) u0) ERR_INVALID_WEIGHT)
+		;; TODO: assert that either a Delegatee has not been set yet or the delegatee being passed in is the same as existing delegatee
+		(asserts! (or (not (is-some (map-get? Delegators delegator))) (is-eq (unwrap-panic (get delegatee (map-get? Delegators delegator))) delegatee)) ERR_MUST_REVOKE_CURRENT_DELEGATION)
 		(map-set Delegators delegator { delegatee: delegatee, weight: (unwrap-panic (get-balance delegator)) })
 		(if (is-some (map-get? Delegatees delegatee))
 			(map-set Delegatees delegatee (+ (unwrap-panic (get-balance delegator)) (unwrap-panic (map-get? Delegatees delegatee))))
