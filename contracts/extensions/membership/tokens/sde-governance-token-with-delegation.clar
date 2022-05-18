@@ -155,7 +155,11 @@
 		(asserts! (or (is-eq tx-sender delegator) (is-eq contract-caller delegator)) ERR_NOT_TOKEN_OWNER)
 		(asserts! (> (unwrap-panic (get-balance delegator)) u0) ERR_INVALID_WEIGHT)
 		(map-set Delegators delegator { delegatee: delegatee, weight: (unwrap-panic (get-balance delegator)) })
-		(ok (map-set Delegatees delegatee (unwrap-panic (get-balance delegator))))
+		(if (is-some (map-get? Delegatees delegatee))
+			(map-set Delegatees delegatee (+ (unwrap-panic (get-balance delegator)) (unwrap-panic (map-get? Delegatees delegatee))))
+			(map-set Delegatees delegatee (unwrap-panic (get-balance delegator)))
+		)
+		(ok true)
 	)
 )
 
