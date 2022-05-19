@@ -58,8 +58,8 @@
 
 (define-read-only (is-member (who principal))
   (if (is-blacklisted who)
-    false
-    (default-to false (map-get? Members who))
+    (ok false)
+    (ok (default-to false (map-get? Members who)))
   )
 )
 
