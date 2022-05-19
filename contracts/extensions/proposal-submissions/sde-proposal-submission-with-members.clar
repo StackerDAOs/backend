@@ -29,10 +29,11 @@
 (impl-trait .extension-trait.extension-trait)
 
 (define-constant ERR_UNAUTHORIZED (err u3100))
-(define-constant ERR_NOT_MEMBER_CONTRACT (err u3101))
-(define-constant ERR_UNKNOWN_PARAMETER (err u3102))
-(define-constant ERR_PROPOSAL_MINIMUM_START_DELAY (err u3103))
-(define-constant ERR_PROPOSAL_MAXIMUM_START_DELAY (err u3104))
+(define-constant ERR_NOT_A_MEMBER (err u3101))
+(define-constant ERR_NOT_MEMBER_CONTRACT (err u3102))
+(define-constant ERR_UNKNOWN_PARAMETER (err u3103))
+(define-constant ERR_PROPOSAL_MINIMUM_START_DELAY (err u3104))
+(define-constant ERR_PROPOSAL_MAXIMUM_START_DELAY (err u3105))
 
 (define-data-var memberContractPrincipal principal .sde-membership)
 
@@ -97,6 +98,7 @@
 (define-public (propose (proposal <proposal-trait>) (startBlockHeight uint) (memberContract <member-trait>))
   (begin
     (try! (is-member-contract memberContract))
+    (asserts! (is-eq true (unwrap-panic (contract-call? memberContract is-member contract-caller))) ERR_NOT_A_MEMBER)
     (asserts! (>= startBlockHeight (+ block-height (try! (get-parameter "minimumProposalStartDelay")))) ERR_PROPOSAL_MINIMUM_START_DELAY)
     (asserts! (<= startBlockHeight (+ block-height (try! (get-parameter "maximumProposalStartDelay")))) ERR_PROPOSAL_MAXIMUM_START_DELAY)
     (contract-call? .sde-proposal-voting-with-members add-proposal
