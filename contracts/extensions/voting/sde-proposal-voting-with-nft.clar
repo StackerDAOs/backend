@@ -32,13 +32,14 @@
 (define-constant ERR_PROPOSAL_ALREADY_EXECUTED (err u3402))
 (define-constant ERR_PROPOSAL_ALREADY_EXISTS (err u3403))
 (define-constant ERR_UNKNOWN_PROPOSAL (err u3404))
-(define-constant ERR_PROPOSAL_ALREADY_CONCLUDED (err u3405))
-(define-constant ERR_PROPOSAL_INACTIVE (err u3406))
-(define-constant ERR_PROPOSAL_NOT_CONCLUDED (err u3407))
-(define-constant ERR_NO_VOTES_TO_RETURN (err u3408))
-(define-constant ERR_ALREADY_VOTED (err u3409))
-(define-constant ERR_END_BLOCK_HEIGHT_NOT_REACHED (err u3410))
-(define-constant ERR_DISABLED (err u3411))
+(define-constant ERR_PROPOSAL_ALREADY_STARTED (err u3405))
+(define-constant ERR_PROPOSAL_ALREADY_CONCLUDED (err u3406))
+(define-constant ERR_PROPOSAL_INACTIVE (err u3407))
+(define-constant ERR_PROPOSAL_NOT_CONCLUDED (err u3408))
+(define-constant ERR_NO_VOTES_TO_RETURN (err u3409))
+(define-constant ERR_ALREADY_VOTED (err u3410))
+(define-constant ERR_END_BLOCK_HEIGHT_NOT_REACHED (err u3411))
+(define-constant ERR_DISABLED (err u3412))
 
 (define-data-var nftContract principal .nft-membership)
 
@@ -72,6 +73,16 @@
     (print {event: "propose", proposal: proposal, proposer: tx-sender})
     (ok (asserts! (map-insert Proposals (contract-of proposal) (merge {votesFor: u0, votesAgainst: u0, concluded: false, passed: false} data)) ERR_PROPOSAL_ALREADY_EXISTS))
   )
+)
+
+(define-public (cancel-proposal (proposal <proposal-trait>))
+	(begin
+		(try! (is-dao-or-extension))
+		(asserts! (is-none (contract-call? .executor-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
+		(asserts! (< block-height (get startBlockHeight (unwrap-panic (get-proposal-data (contract-of proposal))))) ERR_PROPOSAL_ALREADY_STARTED)
+		(print {event: "cancel", proposal: proposal, proposer: tx-sender})
+		(ok (asserts! (map-delete Proposals (contract-of proposal)) ERR_UNKNOWN_PROPOSAL))
+	)
 )
 
 ;; Proposals
