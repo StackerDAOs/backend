@@ -142,7 +142,6 @@
 			(delegateSender (map-get? Delegators sender))
 			(delegateRecipient (map-get? Delegators recipient))
 		)
-		
 		(if (is-some delegateSender)
 			(begin
 				;; Decrement the delegated weight of the sender to their delegatee
@@ -159,7 +158,6 @@
 	(begin
 		(asserts! (or (is-eq tx-sender delegator) (is-eq contract-caller delegator)) ERR_NOT_TOKEN_OWNER)
 		(asserts! (> (unwrap-panic (get-balance delegator)) u0) ERR_INVALID_WEIGHT)
-		;; TODO: assert that either a Delegatee has not been set yet or the delegatee being passed in is the same as existing delegatee
 		(asserts! (or (not (is-some (map-get? Delegators delegator))) (is-eq (unwrap-panic (get delegatee (map-get? Delegators delegator))) delegatee)) ERR_MUST_REVOKE_CURRENT_DELEGATION)
 		(map-set Delegators delegator { delegatee: delegatee, weight: (unwrap-panic (get-balance delegator)) })
 		(if (is-some (map-get? Delegatees delegatee))
