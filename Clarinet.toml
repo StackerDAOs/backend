@@ -186,15 +186,3 @@ depends_on = []
 [contracts.sip010-ft-trait]
 path = "contracts/traits/sip010-ft-trait.clar"
 depends_on = []
-
-[contracts.sde-test-membership]
-path = "contracts/tests/extensions/sde-test-membership.clar"
-depends_on = []
-
-[contracts.sdp008-test-bootstrap]
-path = "contracts/tests/proposals/sdp008-test-bootstrap.clar"
-depends_on = ["proposal-trait", "executor-dao", "sde-vault", "sde-membership", "sde-proposal-voting-with-members", "sde-proposal-submission-with-members"]
-
-[contracts.sdp008-test-proposal-submission]
-path = "contracts/tests/proposals/sdp008-test-proposal-submission.clar"
-depends_on = ["proposal-trait", "executor-dao", "sde-test-membership", "sde-membership"]
