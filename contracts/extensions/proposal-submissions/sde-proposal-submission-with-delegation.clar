@@ -29,7 +29,7 @@
 
 (define-map parameters (string-ascii 34) uint)
 
-(map-set parameters "proposeFactor" u100000) ;; 1% initially required to propose (100/n*1000).
+(map-set parameters "proposeFactor" u400000) ;; 1% of 250k initially distributed to Megapoont holders required to vote
 (map-set parameters "proposalDuration" u1440) ;; ~10 days based on a ~10 minute block time.
 (map-set parameters "minimumProposalStartDelay" u144) ;; ~1 day minimum delay before voting on a proposal can start.
 (map-set parameters "maximumProposalStartDelay" u1008) ;; ~7 days maximum delay before voting on a proposal can start.
@@ -42,10 +42,10 @@
 
 ;; --- Internal DAO functions
 
-(define-public (set-governance-token (governance-token <delegate-token-trait>))
+(define-public (set-governance-token (governanceToken <delegate-token-trait>))
 	(begin
 		(try! (is-dao-or-extension))
-		(ok (var-set governanceTokenPrincipal (contract-of governance-token)))
+		(ok (var-set governanceTokenPrincipal (contract-of governanceToken)))
 	)
 )
 
@@ -78,20 +78,20 @@
 	(var-get governanceTokenPrincipal)
 )
 
-(define-private (is-governance-token (governance-token <delegate-token-trait>))
-	(ok (asserts! (is-eq (contract-of governance-token) (var-get governanceTokenPrincipal)) ERR_NOT_GOVERNANCE_TOKEN))
+(define-private (is-governance-token (governanceToken <delegate-token-trait>))
+	(ok (asserts! (is-eq (contract-of governanceToken) (var-get governanceTokenPrincipal)) ERR_NOT_GOVERNANCE_TOKEN))
 )
 
 (define-read-only (get-parameter (parameter (string-ascii 34)))
 	(ok (unwrap! (map-get? parameters parameter) ERR_UNKNOWN_PARAMETER))
 )
 
-(define-public (propose (proposal <proposal-trait>) (startBlockHeight uint) (governance-token <delegate-token-trait>))
+(define-public (propose (proposal <proposal-trait>) (startBlockHeight uint) (governanceToken <delegate-token-trait>))
 	(begin
-		(try! (is-governance-token governance-token))
+		(try! (is-governance-token governanceToken))
 		(asserts! (>= startBlockHeight (+ block-height (try! (get-parameter "minimumProposalStartDelay")))) ERR_PROPOSAL_MINIMUM_START_DELAY)
 		(asserts! (<= startBlockHeight (+ block-height (try! (get-parameter "maximumProposalStartDelay")))) ERR_PROPOSAL_MAXIMUM_START_DELAY)
-		(asserts! (try! (contract-call? governance-token has-percentage-balance tx-sender (try! (get-parameter "proposeFactor")))) ERR_INSUFFICIENT_BALANCE)
+		(asserts! (try! (contract-call? governanceToken has-percentage-balance tx-sender (try! (get-parameter "proposeFactor")))) ERR_INSUFFICIENT_BALANCE)
 		(contract-call? .sde-proposal-voting-with-delegation add-proposal
 			proposal
 			{
