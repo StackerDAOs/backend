@@ -178,11 +178,11 @@
 )
 
 (define-read-only (has-percentage-balance (who principal) (factor uint))
-	(ok (>= (* (unwrap-panic (get-balance who)) factor) (* (unwrap-panic (get-total-supply)) u1000)))
+	(ok (>= (* (unwrap-panic (get-voting-weight who)) factor) (* (unwrap-panic (get-total-supply)) u1000)))
 )
 
-(define-read-only (get-voting-weight (voter principal))
-	(ok (default-to u0 (map-get? Delegatees voter)))
+(define-read-only (get-voting-weight (who principal))
+	(ok (default-to u0 (map-get? Delegatees who)))
 )
 
 (define-read-only (get-delegator (delegator principal))
