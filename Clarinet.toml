@@ -4,6 +4,16 @@ requirements = []
 
 [repl]
 costs_version = 2
+parser_version = 2
+
+[repl.analysis]
+passes = [] # add ["check_checker"]
+
+[repl.analysis.check_checker]
+strict = false
+trusted_sender = false
+trusted_caller = false
+callee_filter = false
 
 [contracts.sde-governance-token-with-lockup]
 path = "contracts/extensions/membership/tokens/sde-governance-token-with-lockup.clar"
