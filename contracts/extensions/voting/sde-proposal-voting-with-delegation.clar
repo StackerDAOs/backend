@@ -30,9 +30,10 @@
 (define-constant ERR_QUORUM_NOT_MET (err u2510))
 (define-constant ERR_END_BLOCK_HEIGHT_NOT_REACHED (err u2511))
 (define-constant ERR_DISABLED (err u2512))
+(define-constant ERR_INSUFFICIENT_BALANCE (err u2513))
+(define-constant ERR_UNKNOWN_PARAMETER (err u2514))
 
 (define-data-var governanceTokenPrincipal principal .sde-governance-token-with-lockup)
-(define-data-var quorum uint u12500) ;; Set initially to 5% of 250k MEGA distributed to Megapont holders
 
 (define-map Proposals
 	principal
@@ -46,8 +47,11 @@
 		proposer: principal
 	}
 )
-
 (define-map MemberTotalVotes {proposal: principal, voter: principal, governanceToken: principal} uint)
+(define-map parameters (string-ascii 34) uint)
+
+(map-set parameters "voteFactor" u400000) ;; 1% of 250k initially distributed to Megapoont holders required to vote
+(map-set parameters "quorumThreshold" u12500) ;; 5% of 250k initially distributed to Megapoont holders required for quorum
 
 ;; --- Authorization check
 
@@ -64,10 +68,11 @@
 	)
 )
 
-(define-public (set-quorum (newQuorum uint))
+(define-public (set-parameter (parameter (string-ascii 34)) (value uint))
 	(begin
 		(try! (is-dao-or-extension))
-		(ok (var-set quorum newQuorum))
+		(try! (get-parameter parameter))
+		(ok (map-set parameters parameter value))
 	)
 )
 
@@ -100,6 +105,10 @@
 	(ok (asserts! (is-eq (contract-of governanceToken) (var-get governanceTokenPrincipal)) ERR_NOT_GOVERNANCE_TOKEN))
 )
 
+(define-read-only (get-parameter (parameter (string-ascii 34)))
+	(ok (unwrap! (map-get? parameters parameter) ERR_UNKNOWN_PARAMETER))
+)
+
 (define-read-only (get-proposal-data (proposal principal))
 	(map-get? Proposals proposal)
 )
@@ -117,6 +126,7 @@
 		(try! (is-governance-token governanceToken))
 		(asserts! (>= block-height (get startBlockHeight proposalData)) ERR_PROPOSAL_INACTIVE)
 		(asserts! (< block-height (get endBlockHeight proposalData)) ERR_PROPOSAL_INACTIVE)
+		(asserts! (try! (contract-call? governanceToken has-percentage-balance tx-sender (try! (get-parameter "voteFactor")))) ERR_INSUFFICIENT_BALANCE)
 		(map-set MemberTotalVotes {proposal: proposal, voter: tx-sender, governanceToken: tokenPrincipal}
 			(+ (get-current-total-votes proposal tx-sender tokenPrincipal) amount)
 		)
@@ -136,12 +146,12 @@
 		(
 			(proposalData (unwrap! (map-get? Proposals (contract-of proposal)) ERR_UNKNOWN_PROPOSAL))
 			(totalVotes (+ (get votesFor proposalData) (get votesAgainst proposalData)))
-			(passed (and (>= totalVotes (var-get quorum)) (> (get votesFor proposalData) (get votesAgainst proposalData))))
+			(passed (and (>= totalVotes (try! (get-parameter "quorumThreshold"))) (> (get votesFor proposalData) (get votesAgainst proposalData))))
 		)
 		(asserts! (not (get concluded proposalData)) ERR_PROPOSAL_ALREADY_CONCLUDED)
 		(asserts! (>= block-height (get endBlockHeight proposalData)) ERR_END_BLOCK_HEIGHT_NOT_REACHED)
 		(map-set Proposals (contract-of proposal) (merge proposalData {concluded: true, passed: passed}))
-		(print {event: "conclude", proposal: proposal, totalVotes: totalVotes, quorum: (var-get quorum), passed: passed})
+		(print {event: "conclude", proposal: proposal, totalVotes: totalVotes, quorum: (try! (get-parameter "quorumThreshold")), passed: passed})
 		(and passed (try! (contract-call? .executor-dao execute proposal tx-sender)))
 		(ok passed)
 	)
