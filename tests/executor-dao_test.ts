@@ -3,42 +3,51 @@ import {
   assertEquals,
   Clarinet,
   Chain,
+  Tx,
   types,
 } from './utils/helpers.ts';
-import { ExecutorDao, EXECUTOR_DAO_CODES } from './models/executor-dao-model.ts';
 import { EXTENSIONS, PROPOSALS } from './utils/contract-addresses.ts';
 
+enum EXECUTOR_DAO_CODES {
+  ERR_UNAUTHORIZED = 1000,
+  ERR_ALREADY_EXECUTED = 1001,
+  ERR_INVALID_EXTENSION = 1002,
+}
+
+const call = (method: string, args: any[], address: string) => {
+  return Tx.contractCall('executor-dao', method, args, address)
+};
+
+const fetchApi = ({ address }: Account) => ({
+  init: (proposal: any) => call('init', [types.principal(proposal)], address),
+  isExtension: (extension: any) => call('is-extension', [types.principal(extension)], address),
+  setExtension: (extension: any, enabled: any) => call('set-extension', [types.principal(extension), types.bool(enabled)], address),
+  execute: (proposal: any) => call('execute', [types.principal(proposal)], address),
+  executedAt: (proposal: any) => call('executed-at', [types.principal(proposal)], address),
+});
+
 Clarinet.test({
-  name: 'ExecutorDao',
+  name: '`executor-dao` - initialize the dao',
   async fn(chain: Chain, accounts: Map<string, Account>) {
-    let deployer = accounts.get('deployer')!;
-    let Dao = new ExecutorDao(chain);
-    let data: any;
-  
-    // check if the extension is enabled
-    data = await Dao.isExtension(deployer, types.principal(EXTENSIONS.sde009Safe));
-    data.result.expectBool(false);
+    const { init, isExtension } = fetchApi(accounts.get('deployer')!);
+    const { receipts } = chain.mineBlock([
+      init(PROPOSALS.sdp000Bootstrap),
+      isExtension(EXTENSIONS.sde009Safe),
+    ])
+    receipts[0].result.expectOk().expectBool(true);
+    receipts[1].result.expectBool(true);
+  },
+});
 
-    // initialize the DAO with enabled extensions for .sde009-safe
-    data = await Dao.init(deployer, types.principal(PROPOSALS.sdp000Bootstrap));
-    assertEquals(data.events.length, 6);
-    data.result.expectOk().expectBool(true);
-
-    // // once already called, initialize can only be called by the dao or enabled extensions 
-    data = await Dao.init(deployer, types.principal(PROPOSALS.sdp000Bootstrap));
-    assertEquals(data.events.length, 0);
-    data.result.expectErr().expectUint(EXECUTOR_DAO_CODES.ERR_UNAUTHORIZED);
-
-    // // check if the extension is now enabled
-    data = await Dao.isExtension(deployer, types.principal(EXTENSIONS.sde009Safe));
-    data.result.expectBool(true);
-
-    // // fail to set-extension without going through a proposal
-    data = await Dao.setExtension(deployer, types.principal(EXTENSIONS.sde009Safe), types.bool(false));
-    data.result.expectErr().expectUint(EXECUTOR_DAO_CODES.ERR_UNAUTHORIZED);
-
-    // // fail to execute a proposal without going through proposal process
-    data = await Dao.execute(deployer, types.principal(PROPOSALS.sdp004SendFunds));
-    data.result.expectErr().expectUint(EXECUTOR_DAO_CODES.ERR_UNAUTHORIZED);
+Clarinet.test({
+  name: '`executor-dao` - should return unauthorized when trying to call init twice',
+  async fn(chain: Chain, accounts: Map<string, Account>) {
+    const { init } = fetchApi(accounts.get('deployer')!);
+    const { receipts } = chain.mineBlock([
+      init(PROPOSALS.sdp000Bootstrap),
+      init(PROPOSALS.sdp000Bootstrap),
+    ])
+    receipts[0].result.expectOk().expectBool(true);
+    receipts[1].result.expectErr().expectUint(EXECUTOR_DAO_CODES.ERR_UNAUTHORIZED);
   },
 });
