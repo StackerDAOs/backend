@@ -30,7 +30,7 @@
 (define-constant ERR_QUORUM_NOT_MET (err u2510))
 (define-constant ERR_END_BLOCK_HEIGHT_NOT_REACHED (err u2511))
 (define-constant ERR_DISABLED (err u2512))
-(define-constant ERR_INSUFFICIENT_BALANCE (err u2513))
+(define-constant ERR_INSUFFICIENT_WEIGHT (err u2513))
 (define-constant ERR_UNKNOWN_PARAMETER (err u2514))
 
 (define-data-var governanceTokenPrincipal principal .sde-governance-token-with-lockup)
@@ -117,16 +117,17 @@
 	(default-to u0 (map-get? MemberTotalVotes {proposal: proposal, voter: voter, governanceToken: governanceToken}))
 )
 
-(define-public (vote (amount uint) (for bool) (proposal principal) (governanceToken <delegate-token-trait>))
+(define-public (vote (for bool) (proposal principal) (governanceToken <delegate-token-trait>))
 	(let
 		(
 			(proposalData (unwrap! (map-get? Proposals proposal) ERR_UNKNOWN_PROPOSAL))
 			(tokenPrincipal (contract-of governanceToken))
+			(amount (unwrap-panic (contract-call? governanceToken get-voting-weight tx-sender)))
 		)
 		(try! (is-governance-token governanceToken))
 		(asserts! (>= block-height (get startBlockHeight proposalData)) ERR_PROPOSAL_INACTIVE)
 		(asserts! (< block-height (get endBlockHeight proposalData)) ERR_PROPOSAL_INACTIVE)
-		(asserts! (try! (contract-call? governanceToken has-percentage-balance tx-sender (try! (get-parameter "voteFactor")))) ERR_INSUFFICIENT_BALANCE)
+		(asserts! (try! (contract-call? governanceToken has-percentage-balance tx-sender (try! (get-parameter "voteFactor")))) ERR_INSUFFICIENT_WEIGHT)
 		(map-set MemberTotalVotes {proposal: proposal, voter: tx-sender, governanceToken: tokenPrincipal}
 			(+ (get-current-total-votes proposal tx-sender tokenPrincipal) amount)
 		)
