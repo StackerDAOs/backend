@@ -15,7 +15,7 @@ enum MULTISIG_CODES {
   ERR_PROPOSAL_NOT_FOUND = 3604,
   ERR_PROPOSAL_ALREADY_EXISTS = 3605,
   ERR_PROPOSAL_ALREADY_EXECUTED = 3606,
-}
+};
 
 const call = (method: string, args: any[], address: string) => {
   return Tx.contractCall('sde-multisig', method, args, address)
@@ -32,8 +32,7 @@ Clarinet.test({
     const newSigner = accounts.get('wallet_1')!;
     const { receipts } = chain.mineBlock([
       addSigner(newSigner.address),
-    ])
-
+    ]);
     receipts[0].result.expectErr().expectUint(MULTISIG_CODES.ERR_UNAUTHORIZED);
   },
 });
