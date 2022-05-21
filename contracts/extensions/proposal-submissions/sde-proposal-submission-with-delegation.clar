@@ -20,7 +20,7 @@
 
 (define-constant ERR_UNAUTHORIZED (err u2600))
 (define-constant ERR_NOT_GOVERNANCE_TOKEN (err u2601))
-(define-constant ERR_INSUFFICIENT_BALANCE (err u2602))
+(define-constant ERR_INSUFFICIENT_WEIGHT (err u2602))
 (define-constant ERR_UNKNOWN_PARAMETER (err u2603))
 (define-constant ERR_PROPOSAL_MINIMUM_START_DELAY (err u2604))
 (define-constant ERR_PROPOSAL_MAXIMUM_START_DELAY (err u2605))
@@ -91,7 +91,7 @@
 		(try! (is-governance-token governanceToken))
 		(asserts! (>= startBlockHeight (+ block-height (try! (get-parameter "minimumProposalStartDelay")))) ERR_PROPOSAL_MINIMUM_START_DELAY)
 		(asserts! (<= startBlockHeight (+ block-height (try! (get-parameter "maximumProposalStartDelay")))) ERR_PROPOSAL_MAXIMUM_START_DELAY)
-		(asserts! (try! (contract-call? governanceToken has-percentage-balance tx-sender (try! (get-parameter "proposeFactor")))) ERR_INSUFFICIENT_BALANCE)
+		(asserts! (try! (contract-call? governanceToken has-percentage-balance tx-sender (try! (get-parameter "proposeFactor")))) ERR_INSUFFICIENT_WEIGHT)
 		(contract-call? .sde-proposal-voting-with-delegation add-proposal
 			proposal
 			{
