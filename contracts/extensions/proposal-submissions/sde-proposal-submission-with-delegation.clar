@@ -103,6 +103,17 @@
 	)
 )
 
+;; TODO: Should this have to go through a DAO vote?
+;; TODO: Possibly only allow proposer to be able to cancel their own proposal if submitted by accident
+(define-public (cancel (proposal <proposal-trait>) (governanceToken <delegate-token-trait>) (reason (string-ascii 34)))
+	(begin
+		(try! (is-governance-token governanceToken))
+		(asserts! (try! (contract-call? governanceToken has-percentage-balance tx-sender (try! (get-parameter "proposeFactor")))) ERR_INSUFFICIENT_WEIGHT)
+		(print { event: "cancel", proposal: proposal, reason: reason })
+		(contract-call? .sde-proposal-voting-with-delegation cancel-proposal proposal)
+	)
+)
+
 ;; --- Extension callback
 
 (define-public (callback (sender principal) (memo (buff 34)))
