@@ -22,7 +22,7 @@
 (define-constant ERR_PROPOSAL_ALREADY_EXECUTED (err u2502))
 (define-constant ERR_PROPOSAL_ALREADY_EXISTS (err u2503))
 (define-constant ERR_UNKNOWN_PROPOSAL (err u2504))
-(define-constant ERR_PROPOSAL_ALREADY_STARTED (err u2505))
+(define-constant ERR_PROPOSAL_ALREADY_ACTIVE (err u2505))
 (define-constant ERR_PROPOSAL_ALREADY_CONCLUDED (err u2506))
 (define-constant ERR_PROPOSAL_INACTIVE (err u2507))
 (define-constant ERR_PROPOSAL_NOT_CONCLUDED (err u2508))
@@ -33,7 +33,7 @@
 (define-constant ERR_INSUFFICIENT_WEIGHT (err u2513))
 (define-constant ERR_UNKNOWN_PARAMETER (err u2514))
 
-(define-data-var governanceTokenPrincipal principal .sde-governance-token-with-lockup)
+(define-data-var governanceTokenPrincipal principal .sde-governance-token-with-delegation)
 
 (define-map Proposals
 	principal
@@ -89,7 +89,7 @@
 	(begin
 		(try! (is-dao-or-extension))
 		(asserts! (is-none (contract-call? .executor-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
-		(asserts! (< block-height (get startBlockHeight (unwrap-panic (get-proposal-data (contract-of proposal))))) ERR_PROPOSAL_ALREADY_STARTED)
+		(asserts! (< block-height (get startBlockHeight (unwrap-panic (get-proposal-data (contract-of proposal))))) ERR_PROPOSAL_ALREADY_ACTIVE)
 		(print {event: "cancel", proposal: proposal, proposer: tx-sender})
 		(ok (asserts! (map-delete Proposals (contract-of proposal)) ERR_UNKNOWN_PROPOSAL))
 	)
