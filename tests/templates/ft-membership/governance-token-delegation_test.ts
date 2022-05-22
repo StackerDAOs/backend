@@ -37,7 +37,8 @@ enum DELEGATE_VOTING_CODES {
   ERR_END_BLOCK_HEIGHT_NOT_REACHED = 2511,
   ERR_DISABLED = 2512,
   ERR_INSUFFICIENT_WEIGHT = 2513,
-  ERR_UNKNOWN_PARAMETER = 2514,
+  ERR_ALREADY_VOTED = 2514,
+  ERR_UNKNOWN_PARAMETER = 2515,
 };
 
 enum DELEGATE_SUBMISSION_CODES {
@@ -128,7 +129,6 @@ Clarinet.test({
       init(BOOTSTRAPS.DELEGATE_VOTING_DAO),
       propose(PROPOSALS.SDP_TRANSFER_FUNGIBLE_TOKENS, invalidStartHeight, GOVERNANCE.DELEGATE_TOKEN),
     ]);
-
     receipts[1].result.expectErr().expectUint(DELEGATE_SUBMISSION_CODES.ERR_PROPOSAL_MINIMUM_START_DELAY);
   },
 });
@@ -137,12 +137,11 @@ Clarinet.test({
   name: '`governance token delegation` - submit a proposal with insufficient voting weight',
   async fn(chain: Chain, accounts: Map<string, Account>) {
     const { init, propose } = fetchApi(accounts.get('deployer')!);
-    const validStartHeight = 150;
+    const validStartHeight = 145;
     const { receipts } = chain.mineBlock([
       init(BOOTSTRAPS.DELEGATE_VOTING_DAO),
       propose(PROPOSALS.SDP_TRANSFER_FUNGIBLE_TOKENS, validStartHeight, GOVERNANCE.DELEGATE_TOKEN),
     ]);
-
     receipts[1].result.expectErr().expectUint(DELEGATE_SUBMISSION_CODES.ERR_INSUFFICIENT_WEIGHT);
   },
 });
@@ -154,7 +153,7 @@ Clarinet.test({
     const { propose } = fetchApi(accounts.get('wallet_2')!);
     const delegatee = accounts.get('wallet_2')!.address;
     const delegator = accounts.get('deployer')!.address;
-    const validStartHeight = 150;
+    const validStartHeight = 145;
     let { receipts } = chain.mineBlock([
       init(BOOTSTRAPS.DELEGATE_VOTING_DAO),
       delegate(delegatee, delegator),
@@ -171,14 +170,13 @@ Clarinet.test({
     const { propose } = fetchApi(accounts.get('wallet_2')!);
     const delegatee = accounts.get('wallet_2')!.address;
     const delegator = accounts.get('deployer')!.address;
-    const validStartHeight = 150;
+    const validStartHeight = 145;
     let { receipts } = chain.mineBlock([
       init(BOOTSTRAPS.DELEGATE_VOTING_DAO),
       delegate(delegatee, delegator),
       getVotingWeight(delegatee),
       propose(PROPOSALS.SDP_TRANSFER_FUNGIBLE_TOKENS, validStartHeight, GOVERNANCE.DELEGATE_TOKEN),
     ]);
-    
     receipts[1].result.expectOk().expectBool(true);
     receipts[2].result.expectOk().expectUint(2500);
     receipts[3].result.expectOk().expectBool(true);
@@ -192,21 +190,18 @@ Clarinet.test({
     const { propose } = fetchApi(accounts.get('wallet_2')!);
     const delegatee = accounts.get('wallet_2')!.address;
     const delegator = accounts.get('deployer')!.address;
-    const validStartHeight = 150;
+    const validStartHeight = 145;
     let { receipts } = chain.mineBlock([
       init(BOOTSTRAPS.DELEGATE_VOTING_DAO),
       delegate(delegatee, delegator),
       propose(PROPOSALS.SDP_TRANSFER_FUNGIBLE_TOKENS, validStartHeight, GOVERNANCE.DELEGATE_TOKEN),
     ]);
-
     receipts[1].result.expectOk().expectBool(true);
     receipts[2].result.expectOk().expectBool(true);
-
     chain.mineEmptyBlockUntil(validStartHeight);
     let { receipts: voteReceipts } = chain.mineBlock([
       vote(true, PROPOSALS.SDP_TRANSFER_FUNGIBLE_TOKENS, GOVERNANCE.DELEGATE_TOKEN),
-    ])
-    
+    ]);
     voteReceipts[0].result.expectErr().expectUint(DELEGATE_VOTING_CODES.ERR_INSUFFICIENT_WEIGHT);
   },
 });
@@ -218,31 +213,51 @@ Clarinet.test({
     const { propose, vote } = fetchApi(accounts.get('wallet_2')!);
     const delegatee = accounts.get('wallet_2')!.address;
     const delegator = accounts.get('deployer')!.address;
-    const validStartHeight = 150;
-    const invalidStartHeight = 149;
+    const validStartHeight = 145;
+    const invalidStartHeight = 144;
     const blockDuration = 1440;
     let { receipts } = chain.mineBlock([
       init(BOOTSTRAPS.DELEGATE_VOTING_DAO),
       delegate(delegatee, delegator),
       propose(PROPOSALS.SDP_TRANSFER_FUNGIBLE_TOKENS, validStartHeight, GOVERNANCE.DELEGATE_TOKEN),
     ]);
-
     receipts[1].result.expectOk().expectBool(true);
     receipts[2].result.expectOk().expectBool(true);
-
     chain.mineEmptyBlockUntil(invalidStartHeight);
     let { receipts: earlyVoteReceipts } = chain.mineBlock([
       vote(true, PROPOSALS.SDP_TRANSFER_FUNGIBLE_TOKENS, GOVERNANCE.DELEGATE_TOKEN),
-    ])
-
+    ]);
     earlyVoteReceipts[0].result.expectErr().expectUint(DELEGATE_VOTING_CODES.ERR_PROPOSAL_INACTIVE);
-
     chain.mineEmptyBlockUntil(validStartHeight + blockDuration);
     let { receipts: lateVoteReceipts } = chain.mineBlock([
       vote(true, PROPOSALS.SDP_TRANSFER_FUNGIBLE_TOKENS, GOVERNANCE.DELEGATE_TOKEN),
-    ])
-
+    ]);
     lateVoteReceipts[0].result.expectErr().expectUint(DELEGATE_VOTING_CODES.ERR_PROPOSAL_INACTIVE);
+  },
+});
+
+Clarinet.test({
+  name: '`governance token delegation` - vote on proposal more than once',
+  async fn(chain: Chain, accounts: Map<string, Account>) {
+    const { init, delegate } = fetchApi(accounts.get('deployer')!);
+    const { propose, vote } = fetchApi(accounts.get('wallet_2')!);
+    const delegatee = accounts.get('wallet_2')!.address;
+    const delegator = accounts.get('deployer')!.address;
+    const validStartHeight = 145;
+    let { receipts } = chain.mineBlock([
+      init(BOOTSTRAPS.DELEGATE_VOTING_DAO),
+      delegate(delegatee, delegator),
+      propose(PROPOSALS.SDP_TRANSFER_FUNGIBLE_TOKENS, validStartHeight, GOVERNANCE.DELEGATE_TOKEN),
+    ]);
+    receipts[1].result.expectOk().expectBool(true);
+    receipts[2].result.expectOk().expectBool(true);
+    chain.mineEmptyBlockUntil(validStartHeight);
+    let { receipts: voteReceipts } = chain.mineBlock([
+      vote(true, PROPOSALS.SDP_TRANSFER_FUNGIBLE_TOKENS, GOVERNANCE.DELEGATE_TOKEN),
+      vote(true, PROPOSALS.SDP_TRANSFER_FUNGIBLE_TOKENS, GOVERNANCE.DELEGATE_TOKEN),
+    ]);
+    voteReceipts[0].result.expectOk().expectBool(true);
+    voteReceipts[1].result.expectErr().expectUint(DELEGATE_VOTING_CODES.ERR_ALREADY_VOTED);
   },
 });
 
@@ -258,24 +273,21 @@ Clarinet.test({
     } = fetchApi(accounts.get('wallet_2')!);
     const delegatee = accounts.get('wallet_2')!.address;
     const delegator = accounts.get('deployer')!.address;
-    const validStartHeight = 150;
+    const validStartHeight = 145;
     const blockDuration = 1440;
     let { receipts } = chain.mineBlock([
       init(BOOTSTRAPS.DELEGATE_VOTING_DAO),
       delegate(delegatee, delegator),
       propose(PROPOSALS.SDP_TRANSFER_FUNGIBLE_TOKENS, validStartHeight, GOVERNANCE.DELEGATE_TOKEN),
-    ])
-
+    ]);
     receipts[1].result.expectOk().expectBool(true);
     receipts[2].result.expectOk().expectBool(true);
-
     chain.mineEmptyBlockUntil(validStartHeight);
     let { receipts: voteReceipts } = chain.mineBlock([
       vote(true, PROPOSALS.SDP_TRANSFER_FUNGIBLE_TOKENS, GOVERNANCE.DELEGATE_TOKEN),
       getCurrentVotes(PROPOSALS.SDP_TRANSFER_FUNGIBLE_TOKENS, delegatee, GOVERNANCE.DELEGATE_TOKEN),
       getProposalData(PROPOSALS.SDP_TRANSFER_FUNGIBLE_TOKENS),
-    ])
-
+    ]);
     voteReceipts[0].result.expectOk().expectBool(true);
     voteReceipts[1].result.expectUint(2500);
     assertEquals(voteReceipts[2].result.expectSome().expectTuple(), {
