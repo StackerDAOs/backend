@@ -9,20 +9,21 @@
 ;;  /_/  /_/|_|\____/_/   \____/___/_/ |_/____/              
 ;;                                                         
 
-;; Title: SDP003 Whitelist Escrow NFT
-;; Author: Marvin Janssen / StackerDAO Dev Team
-;; Synopsis:
-;; An example proposal to illustrate how StackerDAO can manage external
-;; ownable contracts.
+;; Title: SDP Add Signer
+;; Author: StackerDAO Dev Team
+;; Type: Operational
 ;; Description:
-;; StackerDAO is well-equiped to manage external contracts feature have
-;; some form of ownership. This proposal updates the whitelist of an
-;; example escrow contract that is owned by the StackerDAO contract.
-;; Note that the StackerDAO contract must be the owner of nft-escrow
-;; for this proposal to be executed.
+;; Adds a new member to the Multisig. This signer will have all the same rights
+;; as the existing signers. In order to remove a member, another proposal
+;; will need to be created and signed to remove them from the Multisig.
 
 (impl-trait .proposal-trait.proposal-trait)
 
 (define-public (execute (sender principal))
-	(contract-call? .nft-escrow set-whitelisted .some-nft true)
+  (begin
+    (try! (contract-call? .sde-multisig add-signer 'ST2JHG361ZXG51QTKY2NQCVBPPRRE2KZB1HR05NNC))
+    (try! (contract-call? .sde-multisig add-signer 'ST2NEB84ASENDXKYGJPQW86YXQCEFEX2ZQPG87ND))
+    (try! (contract-call? .sde-multisig set-signals-required u3))
+    (ok true)
+  )
 )

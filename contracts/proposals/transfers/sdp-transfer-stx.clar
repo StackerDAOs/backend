@@ -9,16 +9,17 @@
 ;;  /_/  /_/|_|\____/_/   \____/___/_/ |_/____/              
 ;;                                                         
 
-;; Title: SDP002 Kill Emergency Execute
-;; Author: Marvin Janssen / StackerDAO Dev Team
-;; Synopsis:
-;; This proposal disables extension "SDE004 Emergency Execute".
-;; Description:
-;; If this proposal passes, extension "SDE004 Emergency Execute" is immediately
-;; disabled.
+;; Title: SDP Transfer Stacks
+;; Author: StackerDAO Dev Team
+;; Type: Transfer
 
 (impl-trait .proposal-trait.proposal-trait)
 
 (define-public (execute (sender principal))
-	(contract-call? .executor-dao set-extension .sde-emergency-execute false)
+	(begin
+		(try! (contract-call? .sde-vault send-stx u100 'STNHKEPYEPJ8ET55ZZ0M5A34J0R3N5FM2CMMMAZ6))
+
+		(print "Execute proposal")
+		(ok true)
+	)
 )

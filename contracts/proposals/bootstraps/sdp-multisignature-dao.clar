@@ -9,22 +9,15 @@
 ;;  /_/  /_/|_|\____/_/   \____/___/_/ |_/____/              
 ;;                                                         
 
-;; Title: SDP000 Create
-;; Author: Marvin Janssen / StackerDAO Dev Team
-;; Synopsis:
-;; Boot proposal that sets the governance token, DAO parameters, and extensions, and
-;; mints the initial governance tokens.
-;; Description:
-;; Mints the initial supply of governance tokens and enables the the following 
-;; extensions: "SDE000 Governance Token", "SDE001 Proposal Voting",
-;; "SDE002 Proposal Submission", "SDE003 Emergency Proposals",
-;; "SDE004 Emergency Execute".
+;; Title: SDP Multisignature DAO
+;; Author: StackerDAO Dev Team
+;; Type: Bootstrap
 
 (impl-trait .proposal-trait.proposal-trait)
 
 (define-public (execute (sender principal))
 	(begin
-		;; Enable genesis extensions.
+		;; Enable extensions.
 		(try! (contract-call? .executor-dao set-extensions
 			(list
 				{extension: .sde-vault, enabled: true}
@@ -32,14 +25,14 @@
 			)
 		))
 
-		;; Whitelist fungible tokens in safe.
+		;; Whitelist fungible tokens for the vault.
 		(try! (contract-call? .sde-vault set-whitelists
 			(list
 				{token: .citycoin-token, enabled: true}
 			)
 		))
 
-		;; Set emergency team members.
+		;; Add members to the multisig.
 		(try! (contract-call? .sde-multisig add-signer 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM))
 		(try! (contract-call? .sde-multisig add-signer 'ST1SJ3DTE5DN7X54YDH5D64R3BCB6A2AG2ZQ8YPD5))
 		(try! (contract-call? .sde-multisig add-signer 'ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG))

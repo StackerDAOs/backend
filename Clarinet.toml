@@ -15,6 +15,11 @@ trusted_sender = false
 trusted_caller = false
 callee_filter = false
 
+[contracts.executor-dao]
+path = "contracts/executor-dao.clar"
+depends_on = ["proposal-trait", "extension-trait"]
+
+# -- Extensions
 [contracts.sde-governance-token-with-lockup]
 path = "contracts/extensions/membership/tokens/sde-governance-token-with-lockup.clar"
 depends_on = ["executor-dao", "governance-token-trait", "sip010-ft-trait"]
@@ -82,63 +87,53 @@ depends_on = ["executor-dao", "extension-trait", "nft-membership", "sde-proposal
 [contracts.sde-multisig]
 path = "contracts/extensions/multisignature/sde-multisig.clar"
 depends_on = ["executor-dao", "extension-trait", "proposal-trait"]
+# -- End of Extensions
 
-[contracts.sdp000-bootstrap]
-path = "contracts/proposals/sdp000-bootstrap.clar"
-depends_on = ["executor-dao", "proposal-trait", "extension-trait", "sde-governance-token-with-lockup", "sde-proposal-voting-with-lockup", "sde-proposal-submission-with-lockup", "sde-emergency-proposals", "sde-emergency-execute", "sde-membership", "sde-proposal-voting-with-members", "sde-proposal-submission-with-members", "sde-vault", "sdp001-dev-fund"]
+# -- Proposals
+[contracts.sdp-disable-emergency-powers]
+path = "contracts/proposals/sdp-disable-emergency-powers.clar"
+depends_on = ["executor-dao", "proposal-trait", "sde-emergency-execute", "sde-emergency-proposals"]
+
+[contracts.sdp-dev-fund]
+path = "contracts/proposals/sdp-dev-fund.clar"
+depends_on = ["executor-dao", "proposal-trait", "sde-governance-token-with-lockup"]
+# -- End of Proposals
 
 # -- Bootstrap Proposals
-
 [contracts.sdp-delegate-voting-dao]
 path = "contracts/proposals/bootstraps/sdp-delegate-voting-dao.clar"
-depends_on = ["executor-dao", "proposal-trait", "sde-vault", "sde-governance-token-with-delegation", "sde-proposal-submission-with-delegation", "sde-proposal-voting-with-delegation"]
+depends_on = ["executor-dao", "proposal-trait", "sde-vault", "sde-governance-token-with-delegation"]
+
+[contracts.sdp-multisignature-dao]
+path = "contracts/proposals/bootstraps/sdp-multisignature-dao.clar"
+depends_on = ["executor-dao", "proposal-trait"]
 
 [contracts.sdp-nft-dao]
 path = "contracts/proposals/bootstraps/sdp-nft-dao.clar"
-depends_on = ["executor-dao", "proposal-trait", "sde-vault", "sde-proposal-submission-with-nft", "sde-proposal-voting-with-nft"]
-
+depends_on = ["executor-dao", "proposal-trait"]
 # -- End of Bootstrap Proposals
 
-# -- Transfer Proposals
+# -- Multisignature Proposals
+[contracts.sdp-add-signer]
+path = "contracts/proposals/multisignature/add-signer.clar"
+depends_on = ["proposal-trait", "sde-multisig"]
+# -- End of Multisignature Proposals
 
-[contracts.sdp-transfer-fungible-tokens]
-path = "contracts/proposals/transfers/sdp-transfer-fungible-tokens.clar"
+# -- Transfer Proposals
+[contracts.sdp-transfer-ft]
+path = "contracts/proposals/transfers/sdp-transfer-ft.clar"
 depends_on = ["proposal-trait", "sde-vault"]
 
+[contracts.sdp-transfer-nft]
+path = "contracts/proposals/transfers/sdp-transfer-nft.clar"
+depends_on = ["proposal-trait", "sde-vault"]
+
+[contracts.sdp-transfer-stx]
+path = "contracts/proposals/transfers/sdp-transfer-stx.clar"
+depends_on = ["proposal-trait", "sde-vault"]
 # -- End of Transfer Proposals
 
-[contracts.sdp001-dev-fund]
-path = "contracts/proposals/sdp001-dev-fund.clar"
-depends_on = ["sde-governance-token-with-lockup", "executor-dao"]
-
-[contracts.sdp002-kill-emergency-execute]
-path = "contracts/proposals/sdp002-kill-emergency-execute.clar"
-depends_on = ["sde-emergency-execute", "executor-dao"]
-
-[contracts.sdp003-whitelist-escrow-nft]
-path = "contracts/proposals/sdp003-whitelist-escrow-nft.clar"
-depends_on = ["proposal-trait", "nft-escrow"]
-
-[contracts.sdp004-send-funds]
-path = "contracts/proposals/sdp004-send-funds.clar"
-depends_on = ["proposal-trait"]
-
-[contracts.sdp005-disable-emergency-proposal]
-path = "contracts/proposals/sdp005-disable-emergency-proposal.clar"
-depends_on = ["proposal-trait"]
-
-[contracts.sdp006-add-member]
-path = "contracts/proposals/sdp006-add-member.clar"
-depends_on = ["proposal-trait"]
-
-[contracts.sdp007-add-signer]
-path = "contracts/proposals/sdp007-add-signer.clar"
-depends_on = ["proposal-trait"]
-
-[contracts.executor-dao]
-path = "contracts/executor-dao.clar"
-depends_on = ["proposal-trait", "extension-trait"]
-
+# -- Traits
 [contracts.extension-trait]
 path = "contracts/traits/extension-trait.clar"
 depends_on = []
@@ -155,6 +150,24 @@ depends_on = []
 path = "contracts/traits/member-trait.clar"
 depends_on = []
 
+[contracts.ownable-trait]
+path = "contracts/traits/ownable-trait.clar"
+depends_on = []
+
+[contracts.proposal-trait]
+path = "contracts/traits/proposal-trait.clar"
+depends_on = []
+
+[contracts.sip009-nft-trait]
+path = "contracts/traits/sip009-nft-trait.clar"
+depends_on = []
+
+[contracts.sip010-ft-trait]
+path = "contracts/traits/sip010-ft-trait.clar"
+depends_on = []
+# -- End of Traits
+
+# -- External Contracts
 [contracts.nft-escrow]
 path = "contracts/external/nft-escrow.clar"
 depends_on = ["ownable-trait"]
@@ -190,19 +203,4 @@ depends_on = []
 [contracts.citycoin-vrf]
 path = "contracts/external/citycoins/citycoin-vrf.clar"
 depends_on = []
-
-[contracts.ownable-trait]
-path = "contracts/traits/ownable-trait.clar"
-depends_on = []
-
-[contracts.proposal-trait]
-path = "contracts/traits/proposal-trait.clar"
-depends_on = []
-
-[contracts.sip009-nft-trait]
-path = "contracts/traits/sip009-nft-trait.clar"
-depends_on = []
-
-[contracts.sip010-ft-trait]
-path = "contracts/traits/sip010-ft-trait.clar"
-depends_on = []
+# -- End of External Contracts
