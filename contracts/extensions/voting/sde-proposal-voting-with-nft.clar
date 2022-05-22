@@ -124,7 +124,7 @@
   )
 )
 
-(define-private (many-votes-iter (item {tokenId: uint, for: bool, proposal: principal}))
+(define-private (vote-many-iter (item {tokenId: uint, for: bool, proposal: principal}))
   (let
     (
       (tokenId (get tokenId item))
@@ -148,8 +148,8 @@
   )
 )
 
-(define-public (many-votes (votes (list 42 {tokenId: uint, for: bool, proposal: principal})))
-  (ok (map many-votes-iter votes))
+(define-public (vote-many (votes (list 50 {tokenId: uint, for: bool, proposal: principal})))
+  (ok (map vote-many-iter votes))
 )
 
 ;; Conclusion
