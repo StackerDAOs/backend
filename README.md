@@ -1,16 +1,24 @@
 # StackerDAO
 
+ * [The Protocol](#the-protocol)
+ * [Extensions](#extensions)
+ * [Proposals](#proposals)
+ * [Usage](#usage)
+ * [Testing](#testing)
+ * [Examples](#examples)
+
+## The Protocol
 StackerDAOs began as a fork of [ExecutorDAO](https://github.com/MarvinJanssen/executor-dao), and models its design in the same modular and flexible way. The core tenets remain the same:
 
 1. Proposals are smart contracts.
 2. The core executes, the extensions give form.
 3. Ownership control happens via sending context.
 
-## 1. Proposals are smart contracts
+### 1. Proposals are smart contracts
 
 Proposals are expressed as smart contracts. These smart contracts implement a specific `proposal-trait` and may be executed by the DAO when certain conditions are met. It makes StackerDAO extremely flexible and powerful.
 
-## 2. The core executes, the extensions give form
+### 2. The core executes, the extensions give form
 
 StackerDAO initially consists of just one core contract. Its sole purpose is to execute proposals and to keep a list of authorized extensions. There are no other features: no token, no voting, no functions. The DAO is given form through extension contracts.
 
@@ -28,7 +36,7 @@ Since extensions become part of the DAO, they have privileged access to everythi
 
 It allows for extensions that depend on other extensions to be designed. They can be disabled and replaced at any time making StackerDAO fully polymorphic.
 
-## 3. Ownership control happens via sending context
+### 3. Ownership control happens via sending context
 
 StackerDAO follows a single-address ownership model. The core contract is the de facto owner of external ownable contracts. External contracts thus do not need to implement a complicated access model, as any proposal or extension may act upon it.
 
@@ -38,17 +46,15 @@ StackerDAO follows a single-address ownership model. The core contract is the de
 
 ## Extensions
 
-The StackerDAO code base comes with several additional extension contracts. The modified extentions are designated by a code that starts with "SDE" followed by an incrementing number of three digits.
-
 ## Proposals
-
-StackerDAOs also comes with some example proposals. These are designated by a code that starts with "SDP" followed by an incrementing number of three digits. The numbers do not to coincide with extension numbering.
 
 ## Testing
 
 ```clarinet test```
 
-## Example: Multisignature Setup
+## Examples
+
+### Multisignature Setup
 
 To showcase how it works, let's say we want to set up a basic "Multisignature" DAO. The first thing you need to do is give your DAO form, via `Extensions`.
 
