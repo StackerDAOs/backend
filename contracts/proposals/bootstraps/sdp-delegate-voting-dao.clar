@@ -27,10 +27,13 @@
 			)
 		))
 
-		;; Mint 250k tokens to the DAO treasury upon initialization.
-		(try! (contract-call? .sde-governance-token-with-delegation mint u250000 .sde-vault))
-		;; -- TESTING -- Mint 2,500 tokens (min for delegation) to the deployer.
-		(try! (contract-call? .sde-governance-token-with-delegation mint u2500 sender))
+		;; Whitelist token
+		(try! (contract-call? .sde-vault set-whitelist .sde-governance-token-with-delegation true))
+
+		;; Mint 237,500k tokens to the DAO treasury upon initialization.
+		(try! (contract-call? .sde-governance-token-with-delegation mint u237500 .sde-vault))
+		;; Mint 12,500 tokens (min for delegation and quorum) to the deployer.
+		(try! (contract-call? .sde-governance-token-with-delegation mint u12500 sender))
 
 		(print "...to be a completely separate network and separate block chain, yet share CPU power with Bitcoin.")
 		(ok true)

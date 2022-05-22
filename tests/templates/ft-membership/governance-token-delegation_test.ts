@@ -64,6 +64,7 @@ const fetchApi = ({ address }: Account) => ({
       address
     ),
   getVotingWeight: (delegatee: any) => call('sde-governance-token-with-delegation', 'get-voting-weight', [types.principal(delegatee)], address),
+  getBalance: (who: any) => call('sde-governance-token-with-delegation', 'get-balance', [types.principal(who)], address),
   propose: (proposal: any, startBlock: any, governanceContract: any) => 
     call(
       'sde-proposal-submission-with-delegation', 
@@ -106,6 +107,8 @@ const fetchApi = ({ address }: Account) => ({
       ],
       address
     ),
+  conclude: (proposal: any) =>
+    call('sde-proposal-voting-with-delegation', 'conclude', [types.principal(proposal)], address),
 });
 
 Clarinet.test({
@@ -178,7 +181,7 @@ Clarinet.test({
       propose(PROPOSALS.SDP_TRANSFER_FUNGIBLE_TOKENS, validStartHeight, GOVERNANCE.DELEGATE_TOKEN),
     ]);
     receipts[1].result.expectOk().expectBool(true);
-    receipts[2].result.expectOk().expectUint(2500);
+    receipts[2].result.expectOk().expectUint(12500);
     receipts[3].result.expectOk().expectBool(true);
   },
 });
@@ -289,9 +292,9 @@ Clarinet.test({
       getProposalData(PROPOSALS.SDP_TRANSFER_FUNGIBLE_TOKENS),
     ]);
     voteReceipts[0].result.expectOk().expectBool(true);
-    voteReceipts[1].result.expectUint(2500);
+    voteReceipts[1].result.expectUint(12500);
     assertEquals(voteReceipts[2].result.expectSome().expectTuple(), {
-      votesFor: types.uint(2500),
+      votesFor: types.uint(12500),
       votesAgainst: types.uint(0),
       startBlockHeight: types.uint(validStartHeight),
       endBlockHeight: types.uint(validStartHeight + blockDuration),
@@ -299,5 +302,68 @@ Clarinet.test({
       passed: types.bool(false),
       proposer: delegatee,
     });
+  },
+});
+
+Clarinet.test({
+  name: '`governance token delegation` - conclude a proposal',
+  async fn(chain: Chain, accounts: Map<string, Account>) {
+    const {
+      init,
+      delegate,
+      getBalance,
+      conclude
+    } = fetchApi(accounts.get('deployer')!);
+    const {
+      propose,
+      vote,
+      getCurrentVotes,
+      getProposalData,
+    } = fetchApi(accounts.get('wallet_2')!);
+    const delegatee = accounts.get('wallet_2')!.address;
+    const delegator = accounts.get('deployer')!.address;
+    const validStartHeight = 145;
+    const blockDuration = 1440;
+    let { receipts } = chain.mineBlock([
+      init(BOOTSTRAPS.DELEGATE_VOTING_DAO),
+      delegate(delegatee, delegator),
+      propose(PROPOSALS.SDP_TRANSFER_FUNGIBLE_TOKENS, validStartHeight, GOVERNANCE.DELEGATE_TOKEN),
+    ]);
+    receipts[1].result.expectOk().expectBool(true);
+    receipts[2].result.expectOk().expectBool(true);
+    chain.mineEmptyBlockUntil(validStartHeight);
+    let { receipts: voteReceipts } = chain.mineBlock([
+      vote(true, PROPOSALS.SDP_TRANSFER_FUNGIBLE_TOKENS, GOVERNANCE.DELEGATE_TOKEN),
+      getCurrentVotes(PROPOSALS.SDP_TRANSFER_FUNGIBLE_TOKENS, delegatee, GOVERNANCE.DELEGATE_TOKEN),
+      getProposalData(PROPOSALS.SDP_TRANSFER_FUNGIBLE_TOKENS),
+    ]);
+    voteReceipts[0].result.expectOk().expectBool(true);
+    voteReceipts[1].result.expectUint(12500);
+    assertEquals(voteReceipts[2].result.expectSome().expectTuple(), {
+      votesFor: types.uint(12500),
+      votesAgainst: types.uint(0),
+      startBlockHeight: types.uint(validStartHeight),
+      endBlockHeight: types.uint(validStartHeight + blockDuration),
+      concluded: types.bool(false),
+      passed: types.bool(false),
+      proposer: delegatee,
+    });
+    chain.mineEmptyBlockUntil(validStartHeight + blockDuration);
+    let { receipts: concludeReceipts } = chain.mineBlock([
+      conclude(PROPOSALS.SDP_TRANSFER_FUNGIBLE_TOKENS),
+      getProposalData(PROPOSALS.SDP_TRANSFER_FUNGIBLE_TOKENS),
+      getBalance(accounts.get('wallet_9')!.address),
+    ]);
+    concludeReceipts[0].result.expectOk().expectBool(true);
+    assertEquals(concludeReceipts[1].result.expectSome().expectTuple(), {
+      votesFor: types.uint(12500),
+      votesAgainst: types.uint(0),
+      startBlockHeight: types.uint(validStartHeight),
+      endBlockHeight: types.uint(validStartHeight + blockDuration),
+      concluded: types.bool(true),
+      passed: types.bool(true),
+      proposer: delegatee,
+    });
+    concludeReceipts[2].result.expectOk().expectUint(100);
   },
 });
