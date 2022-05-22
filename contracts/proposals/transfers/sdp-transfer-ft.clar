@@ -9,20 +9,17 @@
 ;;  /_/  /_/|_|\____/_/   \____/___/_/ |_/____/              
 ;;                                                         
 
-;; Title: SDP005 Disable Emergency Proposal
+;; Title: SDP Transfer Fungible Tokens
 ;; Author: StackerDAO Dev Team
-;; Synopsis:
-;; This proposal creates a simple dev fund that pays developers on a monthly basis.
-;; Description:
-;; If this proposal passes, it mints new governance tokens equal to 30% of the total
-;; supply and awards them to the SDE005 Dev Fund extension. It contains a number of
-;; principals and set allowances. Any principal with an allowance is able to claim
-;; an amount of tokens equal to the allowance on a (roughly) monthly basis.
-;; Principals can be added and removed, and allowances can be changed via future
-;; proposals.
+;; Type: Transfer
 
 (impl-trait .proposal-trait.proposal-trait)
 
 (define-public (execute (sender principal))
-  (contract-call? .executor-dao set-extension .sde-emergency-proposals false)
+	(begin
+		(try! (contract-call? .sde-vault send-ft .citycoin-token u100 'STNHKEPYEPJ8ET55ZZ0M5A34J0R3N5FM2CMMMAZ6))
+
+		(print "Execute proposal")
+		(ok true)
+	)
 )

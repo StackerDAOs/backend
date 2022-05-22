@@ -9,10 +9,9 @@
 ;;  /_/  /_/|_|\____/_/   \____/___/_/ |_/____/              
 ;;                                                         
 
-;; Title: SDP001 Dev Fund
-;; Author: Marvin Janssen / StackerDAO Dev Team
-;; Synopsis:
-;; This proposal creates a simple dev fund that pays developers on a monthly basis.
+;; Title: SDP Dev fund
+;; Author: StackerDAO Dev Team
+;; Type: External
 ;; Description:
 ;; If this proposal passes, it mints new governance tokens equal to 30% of the total
 ;; supply and awards them to the SDE005 Dev Fund extension. It contains a number of

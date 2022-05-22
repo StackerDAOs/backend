@@ -17,7 +17,7 @@
 
 (define-public (execute (sender principal))
 	(begin
-		;; Enable genesis extensions.
+		;; Enable extensions.
 		(try! (contract-call? .executor-dao set-extensions
 			(list
 				{extension: .sde-vault, enabled: true}

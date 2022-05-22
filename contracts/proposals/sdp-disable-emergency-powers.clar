@@ -9,19 +9,21 @@
 ;;  /_/  /_/|_|\____/_/   \____/___/_/ |_/____/              
 ;;                                                         
 
-;; Title: SDP006 Add Member
+;; Title: SDP Disable Emergency Powers
 ;; Author: StackerDAO Dev Team
-;; Synopsis:
-;; This proposal creates gives the existing members to add new members to the DAO.
+;; Type: Operational
 ;; Description:
-;; If this proposal passes, it adds a new member to the DAO. This member will have
-;; all the same rights as the existing members. In order to remove a member, another
-;; proposal will need to be created and passed to remove them from the DAO.
+;; Disabled both emergency extensions and removes the ability to
+;; propose and execute any emergency proposals on behalf of the DAO.
 
 (impl-trait .proposal-trait.proposal-trait)
 
-(define-constant newMemberAddress 'ST2JHG361ZXG51QTKY2NQCVBPPRRE2KZB1HR05NNC)
-
 (define-public (execute (sender principal))
-  (contract-call? .sde-membership set-member newMemberAddress true)
+	(begin
+    (try! (contract-call? .executor-dao set-extension .sde-emergency-execute false))
+    (try! (contract-call? .executor-dao set-extension .sde-emergency-proposals false))
+
+    (print "Execute proposal")
+    (ok true)
+  )
 )
