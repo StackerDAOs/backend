@@ -31,7 +31,8 @@
 (define-constant ERR_END_BLOCK_HEIGHT_NOT_REACHED (err u2511))
 (define-constant ERR_DISABLED (err u2512))
 (define-constant ERR_INSUFFICIENT_WEIGHT (err u2513))
-(define-constant ERR_UNKNOWN_PARAMETER (err u2514))
+(define-constant ERR_ALREADY_VOTED (err u2514))
+(define-constant ERR_UNKNOWN_PARAMETER (err u2515))
 
 (define-data-var governanceTokenPrincipal principal .sde-governance-token-with-delegation)
 
@@ -128,6 +129,7 @@
 		(asserts! (>= block-height (get startBlockHeight proposalData)) ERR_PROPOSAL_INACTIVE)
 		(asserts! (< block-height (get endBlockHeight proposalData)) ERR_PROPOSAL_INACTIVE)
 		(asserts! (try! (contract-call? governanceToken has-percentage-balance tx-sender (try! (get-parameter "voteFactor")))) ERR_INSUFFICIENT_WEIGHT)
+		(asserts! (is-eq u0 (get-current-total-votes proposal tx-sender tokenPrincipal)) ERR_ALREADY_VOTED)
 		(map-set MemberTotalVotes {proposal: proposal, voter: tx-sender, governanceToken: tokenPrincipal}
 			(+ (get-current-total-votes proposal tx-sender tokenPrincipal) amount)
 		)
