@@ -128,7 +128,7 @@
 		(try! (is-governance-token governanceToken))
 		(asserts! (>= block-height (get startBlockHeight proposalData)) ERR_PROPOSAL_INACTIVE)
 		(asserts! (< block-height (get endBlockHeight proposalData)) ERR_PROPOSAL_INACTIVE)
-		(asserts! (try! (contract-call? governanceToken has-percentage-balance tx-sender (try! (get-parameter "voteFactor")))) ERR_INSUFFICIENT_WEIGHT)
+		(asserts! (try! (contract-call? governanceToken has-percentage-weight tx-sender (try! (get-parameter "voteFactor")))) ERR_INSUFFICIENT_WEIGHT)
 		(asserts! (is-eq u0 (get-current-total-votes proposal tx-sender tokenPrincipal)) ERR_ALREADY_VOTED)
 		(map-set MemberTotalVotes {proposal: proposal, voter: tx-sender, governanceToken: tokenPrincipal}
 			(+ (get-current-total-votes proposal tx-sender tokenPrincipal) amount)

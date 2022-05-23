@@ -59,7 +59,7 @@ const fetchApi = ({ address }: Account) => ({
     call('executor-dao', 'init', [types.principal(proposal)], address),
   delegate: (delegatee: any, delegator: any) =>
     call(
-      'sde-governance-token-with-delegation', 'delegate-votes',
+      'sde-governance-token-with-delegation', 'delegate',
       [types.principal(delegatee), types.principal(delegator)],
       address
     ),

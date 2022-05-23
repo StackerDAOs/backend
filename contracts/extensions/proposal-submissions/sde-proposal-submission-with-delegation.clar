@@ -91,7 +91,7 @@
 		(try! (is-governance-token governanceToken))
 		(asserts! (>= startBlockHeight (+ block-height (try! (get-parameter "minimumProposalStartDelay")))) ERR_PROPOSAL_MINIMUM_START_DELAY)
 		(asserts! (<= startBlockHeight (+ block-height (try! (get-parameter "maximumProposalStartDelay")))) ERR_PROPOSAL_MAXIMUM_START_DELAY)
-		(asserts! (try! (contract-call? governanceToken has-percentage-balance tx-sender (try! (get-parameter "proposeFactor")))) ERR_INSUFFICIENT_WEIGHT)
+		(asserts! (try! (contract-call? governanceToken has-percentage-weight tx-sender (try! (get-parameter "proposeFactor")))) ERR_INSUFFICIENT_WEIGHT)
 		(contract-call? .sde-proposal-voting-with-delegation add-proposal
 			proposal
 			{
@@ -108,7 +108,7 @@
 (define-public (cancel (proposal <proposal-trait>) (governanceToken <delegate-token-trait>) (reason (string-ascii 34)))
 	(begin
 		(try! (is-governance-token governanceToken))
-		(asserts! (try! (contract-call? governanceToken has-percentage-balance tx-sender (try! (get-parameter "proposeFactor")))) ERR_INSUFFICIENT_WEIGHT)
+		(asserts! (try! (contract-call? governanceToken has-percentage-weight tx-sender (try! (get-parameter "proposeFactor")))) ERR_INSUFFICIENT_WEIGHT)
 		(print { event: "cancel", proposal: proposal, reason: reason })
 		(contract-call? .sde-proposal-voting-with-delegation cancel-proposal proposal)
 	)

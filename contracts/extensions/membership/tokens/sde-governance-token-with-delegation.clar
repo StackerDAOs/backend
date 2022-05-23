@@ -154,7 +154,7 @@
 	)
 )
 
-(define-public (delegate-votes (delegatee principal) (delegator principal))
+(define-public (delegate (delegatee principal) (delegator principal))
 	(begin
 		(asserts! (or (is-eq tx-sender delegator) (is-eq contract-caller delegator)) ERR_NOT_TOKEN_OWNER)
 		(asserts! (> (unwrap-panic (get-balance delegator)) u0) ERR_INVALID_WEIGHT)
@@ -177,7 +177,7 @@
 	)
 )
 
-(define-read-only (has-percentage-balance (who principal) (factor uint))
+(define-read-only (has-percentage-weight (who principal) (factor uint))
 	(ok (>= (* (unwrap-panic (get-voting-weight who)) factor) (* (unwrap-panic (get-total-supply)) u1000)))
 )
 
