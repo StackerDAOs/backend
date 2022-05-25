@@ -63,10 +63,10 @@
 
 ;; --- Public functions
 
-(define-public (deposit-stx (amount uint))
+(define-public (deposit (amount uint))
   (begin
     (unwrap! (stx-transfer? amount tx-sender CONTRACT_ADDRESS) ERR_FAILED_TO_TRANSFER_STX)
-    (print {event: "deposit-stx", amount: amount, caller: tx-sender})
+    (print {event: "deposit", amount: amount, caller: tx-sender})
     (ok true)
   )
 )
@@ -89,31 +89,31 @@
   )
 )
 
-(define-public (send-stx (amount uint) (recipient principal))
+(define-public (transfer (amount uint) (recipient principal))
   (begin
     (try! (is-dao-or-extension))
     (unwrap! (as-contract (stx-transfer? amount CONTRACT_ADDRESS recipient)) ERR_FAILED_TO_TRANSFER_STX)
-    (print {event: "send-stx", amount: amount, caller: tx-sender, recipient: recipient})
+    (print {event: "transfer", amount: amount, caller: tx-sender, recipient: recipient})
     (ok true)
   )
 )
 
-(define-public (send-ft (ft <ft-trait>) (amount uint) (recipient principal))
+(define-public (transfer-ft (ft <ft-trait>) (amount uint) (recipient principal))
   (begin
     (try! (is-dao-or-extension))
     (asserts! (is-whitelisted (contract-of ft)) ERR_ASSET_NOT_WHITELISTED)
     (unwrap! (as-contract (contract-call? ft transfer amount CONTRACT_ADDRESS recipient (some 0x11))) ERR_FAILED_TO_TRANSFER_FT)
-    (print {event: "send-ft", assetContract: (contract-of ft), caller: tx-sender, recipient: recipient})
+    (print {event: "transfer-ft", assetContract: (contract-of ft), caller: tx-sender, recipient: recipient})
     (ok true)
   )
 )
 
-(define-public (send-nft (nft <nft-trait>) (id uint) (recipient principal))
+(define-public (transfer-nft (nft <nft-trait>) (id uint) (recipient principal))
   (begin
     (try! (is-dao-or-extension))
     (asserts! (is-whitelisted (contract-of nft)) ERR_ASSET_NOT_WHITELISTED)
     (unwrap! (as-contract (contract-call? nft transfer id CONTRACT_ADDRESS recipient)) ERR_FAILED_TO_TRANSFER_NFT)
-    (print {event: "send-nft", assetContract: (contract-of nft), tokenId: id, caller: tx-sender, recipient: recipient})
+    (print {event: "transfer-nft", assetContract: (contract-of nft), tokenId: id, caller: tx-sender, recipient: recipient})
     (ok true)
   )
 )
@@ -133,10 +133,7 @@
 )
 
 (define-public (get-balance-of (assetContract <ft-trait>))
-  (begin
-    (asserts! (is-whitelisted (contract-of assetContract)) ERR_ASSET_NOT_WHITELISTED)
-    (contract-call? assetContract get-balance CONTRACT_ADDRESS)
-  )
+  (contract-call? assetContract get-balance CONTRACT_ADDRESS)
 )
 
 ;; --- Extension callback
