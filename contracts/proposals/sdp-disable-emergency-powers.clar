@@ -23,7 +23,7 @@
     (try! (contract-call? .executor-dao set-extension .sde-emergency-execute false))
     (try! (contract-call? .executor-dao set-extension .sde-emergency-proposals false))
 
-    (print "Execute proposal")
+    (print {message: "Execute proposal", sender: sender})
     (ok true)
   )
 )

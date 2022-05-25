@@ -9,23 +9,17 @@
 ;;  /_/  /_/|_|\____/_/   \____/___/_/ |_/____/              
 ;;                                                         
 
-;; Title: SDP Add Signer
+;; Title: SDP Transfer Stacks
 ;; Author: StackerDAO Dev Team
-;; Type: Operational
-;; Description:
-;; Adds a new member to the Multisig. This signer will have all the same rights
-;; as the existing signers. In order to remove a member, another proposal
-;; will need to be created and signed to remove them from the Multisig.
+;; Type: Transfer
 
 (impl-trait .proposal-trait.proposal-trait)
 
 (define-public (execute (sender principal))
-  (begin
-    (try! (contract-call? .sde-multisig add-signer 'ST2JHG361ZXG51QTKY2NQCVBPPRRE2KZB1HR05NNC))
-    (try! (contract-call? .sde-multisig add-signer 'ST2NEB84ASENDXKYGJPQW86YXQCEFEX2ZQPG87ND))
-    (try! (contract-call? .sde-multisig set-signals-required u3))
+	(begin
+    (try! (stx-transfer? u100 .sde-vault 'STNHKEPYEPJ8ET55ZZ0M5A34J0R3N5FM2CMMMAZ6))
 
-    (print {message: "Execute proposal", sender: sender})
-    (ok true)
-  )
+		(print {message: "Execute proposal", sender: sender})
+		(ok true)
+	)
 )

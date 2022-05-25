@@ -26,7 +26,7 @@
 			)
 		))
 
-		(print "...to be a completely separate network and separate block chain, yet share CPU power with Bitcoin.")
+		(print {message: "...to be a completely separate network and separate block chain, yet share CPU power with Bitcoin.", sender: sender})
 		(ok true)
 	)
 )

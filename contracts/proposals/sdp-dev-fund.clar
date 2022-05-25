@@ -36,6 +36,8 @@
 			{who: 'ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG, allowance: u100}
 			{who: 'ST2JHG361ZXG51QTKY2NQCVBPPRRE2KZB1HR05NNC, allowance: u20}
 		)))
+
+		(print {message: "Execute proposal", sender: sender})
 		(contract-call? .sde-governance-token-with-lockup mint devFundAmount .sde-dev-fund)
 	)
 )

@@ -35,7 +35,7 @@
 		;; Mint 12,500 tokens (min for delegation and quorum) to the deployer.
 		(try! (contract-call? .sde-governance-token-with-delegation mint u12500 sender))
 
-		(print "...to be a completely separate network and separate block chain, yet share CPU power with Bitcoin.")
+		(print {message: "...to be a completely separate network and separate block chain, yet share CPU power with Bitcoin.", sender: sender})
 		(ok true)
 	)
 )

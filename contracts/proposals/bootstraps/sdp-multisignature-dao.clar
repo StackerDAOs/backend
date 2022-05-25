@@ -37,7 +37,7 @@
 		(try! (contract-call? .sde-multisig add-signer 'ST1SJ3DTE5DN7X54YDH5D64R3BCB6A2AG2ZQ8YPD5))
 		(try! (contract-call? .sde-multisig add-signer 'ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG))
 
-		(print "...to be a completely separate network and separate block chain, yet share CPU power with Bitcoin.")
+		(print {message: "...to be a completely separate network and separate block chain, yet share CPU power with Bitcoin.", sender: sender})
 		(ok true)
 	)
 )
