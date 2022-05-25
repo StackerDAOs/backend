@@ -9,6 +9,7 @@ import {
 
 import {
   BOOTSTRAPS,
+  EXTENSIONS,
   FUNGIBLE_TOKENS,
   NON_FUNGIBLE_TOKENS,
 } from './utils/contract-addresses.ts';
@@ -47,6 +48,8 @@ const fetchApi = ({ address }: Account) => ({
   getBalance: () => call('sde-vault', 'get-balance', [], address),
   getBalanceOf: (token: any) =>
     call('sde-vault', 'get-balance-of', [types.principal(token)], address),
+  getOwner: (tokenId: any) =>
+    call('nft-membership', 'get-owner', [types.uint(tokenId)], address),
   isWhitelisted: (token: any) =>
     call('sde-vault', 'is-whitelisted', [types.principal(token)], address),
 });
@@ -121,18 +124,23 @@ Clarinet.test({
       isWhitelisted,
       mintNft,
       depositNft,
+      getOwner,
     } = fetchApi(accounts.get('deployer')!);
     const recipient = accounts.get('deployer')!;
     const { receipts } = chain.mineBlock([
       init(BOOTSTRAPS.VAULT),
       isWhitelisted(NON_FUNGIBLE_TOKENS.NFT_MEMBERSHIP),
       mintNft(recipient.address),
+      getOwner(1),
       depositNft(NON_FUNGIBLE_TOKENS.NFT_MEMBERSHIP, 1),
+      getOwner(1),
     ]);
     receipts[0].result.expectOk().expectBool(true);
     receipts[1].result.expectBool(true);
     receipts[2].result.expectOk().expectUint(1);
-    receipts[3].result.expectOk().expectBool(true);
+    receipts[3].result.expectOk().expectSome().expectPrincipal(recipient.address);
+    receipts[4].result.expectOk().expectBool(true);
+    receipts[5].result.expectOk().expectSome().expectPrincipal(EXTENSIONS.VAULT);
   },
 });
 
@@ -156,13 +164,53 @@ Clarinet.test({
 Clarinet.test({
   name: '`vault` - unauthorized transfer of fungible tokens',
   async fn(chain: Chain, accounts: Map<string, Account>, contracts: Map<string, any>) {
-    // TODO: implement
+    const {
+      init,
+      mint,
+      depositFt,
+      getBalanceOf,
+      transferFt,
+    } = fetchApi(accounts.get('deployer')!);
+    const recipient = accounts.get('deployer')!;
+    const { receipts } = chain.mineBlock([
+      init(BOOTSTRAPS.VAULT),
+      mint(150, recipient.address),
+      depositFt(FUNGIBLE_TOKENS.FT_MEMBERSHIP, 150),
+      getBalanceOf(FUNGIBLE_TOKENS.FT_MEMBERSHIP),
+      transferFt(FUNGIBLE_TOKENS.FT_MEMBERSHIP, 150, recipient.address),
+    ]);
+    receipts[0].result.expectOk().expectBool(true);
+    receipts[1].result.expectOk().expectBool(true);
+    receipts[2].result.expectOk().expectBool(true);
+    receipts[3].result.expectOk().expectUint(150);
+    receipts[4].result.expectErr().expectUint(VAULT_CODES.ERR_UNAUTHORIZED);
   },
 });
 
 Clarinet.test({
   name: '`vault` - unauthorized transfer of nfts',
   async fn(chain: Chain, accounts: Map<string, Account>, contracts: Map<string, any>) {
-    // TODO: implement
+    const {
+      init,
+      mintNft,
+      depositNft,
+      transferNft,
+      getOwner,
+    } = fetchApi(accounts.get('deployer')!);
+    const recipient = accounts.get('deployer')!;
+    const { receipts } = chain.mineBlock([
+      init(BOOTSTRAPS.VAULT),
+      mintNft(recipient.address),
+      getOwner(1),
+      depositNft(NON_FUNGIBLE_TOKENS.NFT_MEMBERSHIP, 1),
+      transferNft(NON_FUNGIBLE_TOKENS.NFT_MEMBERSHIP, 1, recipient.address),
+      getOwner(1),
+    ]);
+    receipts[0].result.expectOk().expectBool(true);
+    receipts[1].result.expectOk().expectUint(1);
+    receipts[2].result.expectOk().expectSome().expectPrincipal(recipient.address);
+    receipts[3].result.expectOk().expectBool(true);
+    receipts[4].result.expectErr().expectUint(VAULT_CODES.ERR_UNAUTHORIZED);
+    receipts[5].result.expectOk().expectSome().expectPrincipal(EXTENSIONS.VAULT);
   },
 });
