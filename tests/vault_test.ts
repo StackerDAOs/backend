@@ -70,25 +70,6 @@ Clarinet.test({
 });
 
 Clarinet.test({
-  name: '`vault` - deposit unwhitelisted fungible tokens',
-  async fn(chain: Chain, accounts: Map<string, Account>, contracts: Map<string, any>) {
-    const {
-      init,
-      mint,
-      depositFt,
-      getBalanceOf,
-      isWhitelisted,
-    } = fetchApi(accounts.get('deployer')!);
-    const { receipts } = chain.mineBlock([
-      getBalanceOf(FUNGIBLE_TOKENS.FT_MEMBERSHIP),
-      depositFt(FUNGIBLE_TOKENS.FT_MEMBERSHIP, 150),
-    ]);
-    receipts[0].result.expectOk().expectUint(0);
-    receipts[1].result.expectErr().expectUint(VAULT_CODES.ERR_ASSET_NOT_WHITELISTED);
-  },
-});
-
-Clarinet.test({
   name: '`vault` - deposit fungible tokens',
   async fn(chain: Chain, accounts: Map<string, Account>, contracts: Map<string, any>) {
     const {
@@ -113,6 +94,25 @@ Clarinet.test({
     receipts[3].result.expectOk().expectUint(0);
     receipts[4].result.expectOk().expectBool(true);
     receipts[5].result.expectOk().expectUint(150);
+  },
+});
+
+Clarinet.test({
+  name: '`vault` - deposit unwhitelisted fungible tokens',
+  async fn(chain: Chain, accounts: Map<string, Account>, contracts: Map<string, any>) {
+    const {
+      init,
+      mint,
+      depositFt,
+      getBalanceOf,
+      isWhitelisted,
+    } = fetchApi(accounts.get('deployer')!);
+    const { receipts } = chain.mineBlock([
+      getBalanceOf(FUNGIBLE_TOKENS.FT_MEMBERSHIP),
+      depositFt(FUNGIBLE_TOKENS.FT_MEMBERSHIP, 150),
+    ]);
+    receipts[0].result.expectOk().expectUint(0);
+    receipts[1].result.expectErr().expectUint(VAULT_CODES.ERR_ASSET_NOT_WHITELISTED);
   },
 });
 
@@ -145,7 +145,29 @@ Clarinet.test({
 });
 
 Clarinet.test({
-  name: '`vault` - unauthorized transfer of STX',
+  name: '`vault` - deposit unwhitelisted nfts',
+  async fn(chain: Chain, accounts: Map<string, Account>, contracts: Map<string, any>) {
+    const {
+      mintNft,
+      depositNft,
+      getOwner,
+    } = fetchApi(accounts.get('deployer')!);
+    const recipient = accounts.get('deployer')!;
+    const { receipts } = chain.mineBlock([
+      mintNft(recipient.address),
+      getOwner(1),
+      depositNft(NON_FUNGIBLE_TOKENS.NFT_MEMBERSHIP, 1),
+      getOwner(1),
+    ]);
+    receipts[0].result.expectOk().expectUint(1);
+    receipts[1].result.expectOk().expectSome().expectPrincipal(recipient.address);
+    receipts[2].result.expectErr().expectUint(VAULT_CODES.ERR_ASSET_NOT_WHITELISTED);
+    receipts[3].result.expectOk().expectSome().expectPrincipal(recipient.address);
+  },
+});
+
+Clarinet.test({
+  name: '`vault` - transfer of STX',
   async fn(chain: Chain, accounts: Map<string, Account>, contracts: Map<string, any>) {
     const {
       deposit,
@@ -162,7 +184,7 @@ Clarinet.test({
 });
 
 Clarinet.test({
-  name: '`vault` - unauthorized transfer of fungible tokens',
+  name: '`vault` - transfer of fungible tokens',
   async fn(chain: Chain, accounts: Map<string, Account>, contracts: Map<string, any>) {
     const {
       init,
@@ -188,7 +210,7 @@ Clarinet.test({
 });
 
 Clarinet.test({
-  name: '`vault` - unauthorized transfer of nfts',
+  name: '`vault` - transfer of nfts',
   async fn(chain: Chain, accounts: Map<string, Account>, contracts: Map<string, any>) {
     const {
       init,
