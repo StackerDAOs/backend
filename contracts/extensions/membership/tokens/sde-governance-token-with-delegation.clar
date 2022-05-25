@@ -47,7 +47,7 @@
 
 (define-public (mint (amount uint) (recipient principal))
 	(begin
-		;; (try! (is-dao-or-extension))
+		(try! (is-dao-or-extension))
 		(ft-mint? Governance-Token amount recipient)
 	)
 )
