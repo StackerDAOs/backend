@@ -111,6 +111,10 @@ depends_on = ["executor-dao", "proposal-trait"]
 [contracts.sdp-nft-dao]
 path = "contracts/proposals/bootstraps/sdp-nft-dao.clar"
 depends_on = ["executor-dao", "proposal-trait"]
+
+[contracts.sdp-vault]
+path = "contracts/proposals/bootstraps/sdp-vault.clar"
+depends_on = ["executor-dao", "proposal-trait"]
 # -- End of Bootstrap Proposals
 
 # -- Multisignature Proposals
@@ -131,6 +135,10 @@ depends_on = ["proposal-trait", "sde-vault"]
 [contracts.sdp-transfer-stx]
 path = "contracts/proposals/transfers/sdp-transfer-stx.clar"
 depends_on = ["proposal-trait", "sde-vault"]
+
+[contracts.sdp-unauthorized-transfer-stx]
+path = "contracts/proposals/transfers/sdp-unauthorized-transfer-stx.clar"
+depends_on = ["proposal-trait"]
 # -- End of Transfer Proposals
 
 # -- Traits

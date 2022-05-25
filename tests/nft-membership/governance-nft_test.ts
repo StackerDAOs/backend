@@ -5,13 +5,13 @@ import {
   Chain,
   Tx,
   types,
-} from '../../utils/helpers.ts';
+} from '../utils/helpers.ts';
 import {
   BOOTSTRAPS,
   EXTENSIONS,
   GOVERNANCE,
   PROPOSALS,
-} from '../../utils/contract-addresses.ts';
+} from '../utils/contract-addresses.ts';
 
 enum NFT_VOTING_CODES {
   ERR_UNAUTHORIZED = 3400,
