@@ -5,7 +5,7 @@ import {
   Chain,
   Tx,
   types,
-} from '../../utils/helpers.ts';
+} from '../utils/helpers.ts';
 
 enum MULTISIG_CODES {
   ERR_UNAUTHORIZED = 3600,
@@ -22,7 +22,8 @@ const call = (method: string, args: any[], address: string) => {
 };
 
 const fetchApi = ({ address }: Account) => ({
-  addSigner: (principal: any) => call('add-signer', [types.principal(principal)], address),
+  addSigner: (principal: any) =>
+    call('add-signer', [types.principal(principal)], address),
 });
 
 Clarinet.test({
