@@ -6,33 +6,70 @@ import {
   Tx,
   types,
 } from './utils/deps.ts';
-import { BOOTSTRAPS, EXTENSIONS, MULTISIG_CODES } from './utils/common.ts';
+import { BOOTSTRAPS, EXTENSIONS, PROPOSALS, MULTISIG_CODES } from './utils/common.ts';
 import { fetchApi as executorApi } from './utils/api/executor-dao.ts';
 import { fetchApi as multisigApi } from './utils/api/multisignature.ts';
 
 Clarinet.test({
   name: '`multisig` - add a signer',
   async fn(chain: Chain, accounts: Map<string, Account>) {
-    const { addSigner } = multisigApi(accounts.get('deployer')!);
-    const newSigner = accounts.get('wallet_1')!;
+    const { init, isExtension } = await executorApi(accounts.get('deployer')!);
+    const {
+      addSigner,
+      getSigner,
+      propose,
+      getProposalData,
+      getSignalsRequired,
+      getSignersCount,
+    } = multisigApi(accounts.get('deployer')!);
+    const newSigner = accounts.get('wallet_3')!;
     const { receipts } = chain.mineBlock([
       addSigner(newSigner.address),
+      getSigner(newSigner.address),
     ]);
     receipts[0].result.expectErr().expectUint(MULTISIG_CODES.ERR_UNAUTHORIZED);
+    receipts[1].result.expectNone();
 
-    // TODO: add proposal to add signer
+    // Begin proposal process for adding a signer
     const { receipts: proposalReceipts } = chain.mineBlock([
-      // propose(PROPOSALS.ADD_SIGNER, [newSigner.address]),
+      init(BOOTSTRAPS.MULTISIG_DAO),
+      isExtension(EXTENSIONS.MULTISIG),
+      propose(PROPOSALS.SDP_ADD_SIGNER),
+      getProposalData(PROPOSALS.SDP_ADD_SIGNER),
     ]);
+    proposalReceipts[0].result.expectOk().expectBool(true);
+    proposalReceipts[1].result.expectBool(true);
+    proposalReceipts[2].result.expectOk().expectBool(true);
+    assertEquals(proposalReceipts[3].result.expectSome().expectTuple(), {
+      concluded: types.bool(false),
+      proposer: accounts.get('deployer')!.address,
+    })
+
+    // Another signer signs off on the proposal and executes automatically
+    const signer = accounts.get('wallet_1')!
+    const { sign } = multisigApi(signer);
+    const { receipts: signerReceipts } = chain.mineBlock([
+      sign(PROPOSALS.SDP_ADD_SIGNER),
+      getProposalData(PROPOSALS.SDP_ADD_SIGNER),
+      getSigner(newSigner.address),
+      getSignalsRequired(),
+      getSignersCount(),
+    ]);
+    signerReceipts[0].result.expectOk().expectUint(2);
+    assertEquals(signerReceipts[1].result.expectSome().expectTuple(), {
+      concluded: types.bool(true),
+      proposer: accounts.get('deployer')!.address,
+    })
+    signerReceipts[2].result.expectSome().expectPrincipal(newSigner.address);
+    signerReceipts[3].result.expectUint(3);
+    signerReceipts[4].result.expectUint(4);
   },
 });
 
 Clarinet.test({
   name: '`multisig` - submit an unauthorized proposal',
   async fn(chain: Chain, accounts: Map<string, Account>, contracts: Map<string, any>) {
-    const {
-      init,
-    } = executorApi(accounts.get('deployer')!);
+    const { init } = executorApi(accounts.get('deployer')!);
     const recipient = accounts.get('deployer')!.address;
     const { receipts } = chain.mineBlock([
       init(BOOTSTRAPS.VAULT),
@@ -71,7 +108,5 @@ Clarinet.test({
     const { receipts: submissionReceipts } = chain.mineBlock([
       isExtension(EXTENSIONS.MULTISIG),
     ]);
-
-    console.log(submissionReceipts);
   },
 });
