@@ -5,59 +5,23 @@ import {
   Chain,
   Tx,
   types,
-} from './utils/helpers.ts';
-
+} from './utils/deps.ts';
 import {
   BOOTSTRAPS,
   EXTENSIONS,
   FUNGIBLE_TOKENS,
   NON_FUNGIBLE_TOKENS,
-} from './utils/contract-addresses.ts';
-
-enum VAULT_CODES {
-  ERR_UNAUTHORIZED = 3200,
-  ERR_ASSET_NOT_WHITELISTED = 3201,
-  ERR_FAILED_TO_TRANSFER_STX = 3202,
-  ERR_FAILED_TO_TRANSFER_FT = 3203,
-  ERR_FAILED_TO_TRANSFER_NFT = 3204,
-};
-
-const call = (contract: string, method: string, args: any[], address: string) => {
-  return Tx.contractCall(contract, method, args, address)
-};
-
-const fetchApi = ({ address }: Account) => ({
-  init: (proposal: any) =>
-    call('executor-dao', 'init', [types.principal(proposal)], address),
-  mint: (amount: any, recipient: any) =>
-    call('ft-membership', 'mint', [types.uint(amount), types.principal(recipient)], address),
-  mintNft: (recipient: any) =>
-    call('nft-membership', 'mint', [types.principal(recipient)], address),
-  deposit: (amount: any) =>
-    call('sde-vault', 'deposit', [types.uint(amount)], address),
-  depositFt: (fungibleToken: any, amount: any) =>
-    call('sde-vault', 'deposit-ft', [types.principal(fungibleToken), types.uint(amount)], address),
-  depositNft: (nonFungibleToken: any, amount: any) =>
-    call('sde-vault', 'deposit-nft', [types.principal(nonFungibleToken), types.uint(amount)], address),
-  transfer: (amount: any, recipient: any) =>
-    call('sde-vault', 'transfer', [types.uint(amount), types.principal(recipient)], address),
-  transferFt: (fungibleToken: any, amount: any, recipient: any) =>
-    call('sde-vault', 'transfer-ft', [types.principal(fungibleToken), types.uint(amount), types.principal(recipient)], address),
-  transferNft: (nonFungibleToken: any, amount: any, recipient: any) =>
-    call('sde-vault', 'transfer-nft', [types.principal(nonFungibleToken), types.uint(amount), types.principal(recipient)], address),
-  getBalance: () => call('sde-vault', 'get-balance', [], address),
-  getBalanceOf: (token: any) =>
-    call('sde-vault', 'get-balance-of', [types.principal(token)], address),
-  getOwner: (tokenId: any) =>
-    call('nft-membership', 'get-owner', [types.uint(tokenId)], address),
-  isWhitelisted: (token: any) =>
-    call('sde-vault', 'is-whitelisted', [types.principal(token)], address),
-});
+  VAULT_CODES,
+} from './utils/common.ts';
+import { fetchApi as executorApi } from './utils/api/executor-dao.ts';
+import { fetchApi as vaultApi } from './utils/api/vault.ts';
+import { fetchApi as ftApi } from './utils/api/ft-membership.ts';
+import { fetchApi as nftApi } from './utils/api/nft-membership.ts';
 
 Clarinet.test({
   name: '`vault` - deposit STX',
   async fn(chain: Chain, accounts: Map<string, Account>, contracts: Map<string, any>) {
-    const { deposit, getBalance } = fetchApi(accounts.get('deployer')!);
+    const { deposit, getBalance } = vaultApi(accounts.get('deployer')!);
     const { receipts } = chain.mineBlock([
       getBalance(),
       deposit(150),
@@ -72,13 +36,13 @@ Clarinet.test({
 Clarinet.test({
   name: '`vault` - deposit fungible tokens',
   async fn(chain: Chain, accounts: Map<string, Account>, contracts: Map<string, any>) {
+    const { init } = executorApi(accounts.get('deployer')!);
+    const { mint } = ftApi(accounts.get('deployer')!);
     const {
-      init,
-      mint,
       depositFt,
       getBalanceOf,
       isWhitelisted,
-    } = fetchApi(accounts.get('deployer')!);
+    } = vaultApi(accounts.get('deployer')!);
     const recipient = accounts.get('deployer')!;
     const { receipts } = chain.mineBlock([
       init(BOOTSTRAPS.VAULT),
@@ -100,13 +64,13 @@ Clarinet.test({
 Clarinet.test({
   name: '`vault` - deposit unwhitelisted fungible tokens',
   async fn(chain: Chain, accounts: Map<string, Account>, contracts: Map<string, any>) {
+    const { init } = executorApi(accounts.get('deployer')!);
+    const { mint } = ftApi(accounts.get('deployer')!);
     const {
-      init,
-      mint,
       depositFt,
       getBalanceOf,
       isWhitelisted,
-    } = fetchApi(accounts.get('deployer')!);
+    } = vaultApi(accounts.get('deployer')!);
     const { receipts } = chain.mineBlock([
       getBalanceOf(FUNGIBLE_TOKENS.FT_MEMBERSHIP),
       depositFt(FUNGIBLE_TOKENS.FT_MEMBERSHIP, 150),
@@ -119,18 +83,17 @@ Clarinet.test({
 Clarinet.test({
   name: '`vault` - deposit nfts',
   async fn(chain: Chain, accounts: Map<string, Account>, contracts: Map<string, any>) {
+    const { init } = executorApi(accounts.get('deployer')!);
+    const { mint, getOwner } = nftApi(accounts.get('deployer')!);
     const {
-      init,
-      isWhitelisted,
-      mintNft,
       depositNft,
-      getOwner,
-    } = fetchApi(accounts.get('deployer')!);
+      isWhitelisted,
+    } = vaultApi(accounts.get('deployer')!);
     const recipient = accounts.get('deployer')!;
     const { receipts } = chain.mineBlock([
       init(BOOTSTRAPS.VAULT),
       isWhitelisted(NON_FUNGIBLE_TOKENS.NFT_MEMBERSHIP),
-      mintNft(recipient.address),
+      mint(recipient.address),
       getOwner(1),
       depositNft(NON_FUNGIBLE_TOKENS.NFT_MEMBERSHIP, 1),
       getOwner(1),
@@ -147,14 +110,13 @@ Clarinet.test({
 Clarinet.test({
   name: '`vault` - deposit unwhitelisted nfts',
   async fn(chain: Chain, accounts: Map<string, Account>, contracts: Map<string, any>) {
+    const { mint, getOwner } = nftApi(accounts.get('deployer')!);
     const {
-      mintNft,
       depositNft,
-      getOwner,
-    } = fetchApi(accounts.get('deployer')!);
+    } = vaultApi(accounts.get('deployer')!);
     const recipient = accounts.get('deployer')!;
     const { receipts } = chain.mineBlock([
-      mintNft(recipient.address),
+      mint(recipient.address),
       getOwner(1),
       depositNft(NON_FUNGIBLE_TOKENS.NFT_MEMBERSHIP, 1),
       getOwner(1),
@@ -172,7 +134,7 @@ Clarinet.test({
     const {
       deposit,
       transfer,
-    } = fetchApi(accounts.get('deployer')!);
+    } = vaultApi(accounts.get('deployer')!);
     const recipient = accounts.get('deployer')!;
     const { receipts } = chain.mineBlock([
       deposit(150),
@@ -186,13 +148,13 @@ Clarinet.test({
 Clarinet.test({
   name: '`vault` - transfer of fungible tokens',
   async fn(chain: Chain, accounts: Map<string, Account>, contracts: Map<string, any>) {
+    const { init } = executorApi(accounts.get('deployer')!);
+    const { mint } = ftApi(accounts.get('deployer')!);
     const {
-      init,
-      mint,
       depositFt,
       getBalanceOf,
       transferFt,
-    } = fetchApi(accounts.get('deployer')!);
+    } = vaultApi(accounts.get('deployer')!);
     const recipient = accounts.get('deployer')!;
     const { receipts } = chain.mineBlock([
       init(BOOTSTRAPS.VAULT),
@@ -212,17 +174,16 @@ Clarinet.test({
 Clarinet.test({
   name: '`vault` - transfer of nfts',
   async fn(chain: Chain, accounts: Map<string, Account>, contracts: Map<string, any>) {
+    const { init } = executorApi(accounts.get('deployer')!);
+    const { mint, getOwner } = nftApi(accounts.get('deployer')!);
     const {
-      init,
-      mintNft,
       depositNft,
       transferNft,
-      getOwner,
-    } = fetchApi(accounts.get('deployer')!);
+    } = vaultApi(accounts.get('deployer')!);
     const recipient = accounts.get('deployer')!;
     const { receipts } = chain.mineBlock([
       init(BOOTSTRAPS.VAULT),
-      mintNft(recipient.address),
+      mint(recipient.address),
       getOwner(1),
       depositNft(NON_FUNGIBLE_TOKENS.NFT_MEMBERSHIP, 1),
       transferNft(NON_FUNGIBLE_TOKENS.NFT_MEMBERSHIP, 1, recipient.address),

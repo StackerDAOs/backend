@@ -5,116 +5,25 @@ import {
   Chain,
   Tx,
   types,
-} from '../utils/helpers.ts';
+} from '../utils/deps.ts';
 import {
   BOOTSTRAPS,
   EXTENSIONS,
   GOVERNANCE,
   PROPOSALS,
-} from '../utils/contract-addresses.ts';
-
-enum DELEGATE_GOVERNANCE_CODES {
-  ERR_UNAUTHORIZED = 2400,
-  ERR_NOT_TOKEN_OWNER = 2401,
-  ERR_NOT_ENOUGH_TOKENS = 2403,
-  ERR_INVALID_WEIGHT = 2404,
-  ERR_MUST_REVOKE_CURRENT_DELEGATION = 2405,
-  ERR_NO_DELEGATION_TO_REVOKE = 2406,
-};
-
-enum DELEGATE_VOTING_CODES {
-  ERR_UNAUTHORIZED = 2500,
-  ERR_NOT_GOVERNANCE_TOKEN = 2501,
-  ERR_PROPOSAL_ALREADY_EXECUTED = 2502,
-  ERR_PROPOSAL_ALREADY_EXISTS = 2503,
-  ERR_UNKNOWN_PROPOSAL = 2504,
-  ERR_PROPOSAL_ALREADY_ACTIVE = 2505,
-  ERR_PROPOSAL_ALREADY_CONCLUDED = 2506,
-  ERR_PROPOSAL_INACTIVE = 2507,
-  ERR_PROPOSAL_NOT_CONCLUDED = 2508,
-  ERR_NO_VOTES_TO_RETURN = 2509,
-  ERR_QUORUM_NOT_MET = 2510,
-  ERR_END_BLOCK_HEIGHT_NOT_REACHED = 2511,
-  ERR_DISABLED = 2512,
-  ERR_INSUFFICIENT_WEIGHT = 2513,
-  ERR_ALREADY_VOTED = 2514,
-  ERR_UNKNOWN_PARAMETER = 2515,
-};
-
-enum DELEGATE_SUBMISSION_CODES {
-  ERR_UNAUTHORIZED = 2600,
-  ERR_NOT_GOVERNANCE_TOKEN = 2601,
-  ERR_INSUFFICIENT_WEIGHT = 2602,
-  ERR_UNKNOWN_PARAMETER = 2603,
-  ERR_PROPOSAL_MINIMUM_START_DELAY = 2604,
-  ERR_PROPOSAL_MAXIMUM_START_DELAY = 2605,
-};
-
-const call = (contract: string, method: string, args: any[], address: string) => {
-  return Tx.contractCall(contract, method, args, address)
-};
-
-const fetchApi = ({ address }: Account) => ({
-  init: (proposal: any) =>
-    call('executor-dao', 'init', [types.principal(proposal)], address),
-  delegate: (delegatee: any, delegator: any) =>
-    call(
-      'sde-governance-token-with-delegation', 'delegate',
-      [types.principal(delegatee), types.principal(delegator)],
-      address
-    ),
-  getVotingWeight: (delegatee: any) => call('sde-governance-token-with-delegation', 'get-voting-weight', [types.principal(delegatee)], address),
-  getBalance: (who: any) => call('sde-governance-token-with-delegation', 'get-balance', [types.principal(who)], address),
-  propose: (proposal: any, startBlock: any, governanceContract: any) => 
-    call(
-      'sde-proposal-submission-with-delegation', 
-      'propose', 
-      [
-        types.principal(proposal),
-        types.uint(startBlock),
-        types.principal(governanceContract),
-      ],
-      address
-    ),
-  vote: (vote: any, proposal: any, governanceContract: any) =>
-    call(
-      'sde-proposal-voting-with-delegation',
-      'vote',
-      [
-        types.bool(vote),
-        types.principal(proposal),
-        types.principal(governanceContract),
-      ],
-      address,
-    ),
-  getCurrentVotes: (proposal: any, voter: any, governanceContract: any) =>
-    call(
-      'sde-proposal-voting-with-delegation',
-      'get-current-total-votes',
-      [
-        types.principal(proposal),
-        types.principal(voter),
-        types.principal(governanceContract)
-      ],
-      address
-    ),
-  getProposalData: (proposal: any) =>
-    call(
-      'sde-proposal-voting-with-delegation',
-      'get-proposal-data',
-      [
-        types.principal(proposal),
-      ],
-      address
-    ),
-  conclude: (proposal: any) =>
-    call('sde-proposal-voting-with-delegation', 'conclude', [types.principal(proposal)], address),
-});
+  DELEGATE_GOVERNANCE_CODES,
+  DELEGATE_VOTING_CODES,
+  DELEGATE_SUBMISSION_CODES,
+} from '../utils/common.ts';
+import { fetchApi as executorApi } from '../utils/api/executor-dao.ts';
+import { fetchApi as governanceTokenApi } from '../utils/api/governance-token-with-delegation.ts';
+import { fetchApi as proposalApi } from '../utils/api/proposal-submission-with-delegation.ts';
+import { fetchApi as voteApi } from '../utils/api/proposal-voting-with-delegation.ts';
 
 Clarinet.test({
   name: '`governance token delegation` - initialize the dao',
   async fn(chain: Chain, accounts: Map<string, Account>) {
-    const { init } = fetchApi(accounts.get('deployer')!);
+    const { init } = executorApi(accounts.get('deployer')!);
     let { receipts } = chain.mineBlock([
       init(BOOTSTRAPS.DELEGATE_VOTING_DAO),
     ]);
@@ -126,7 +35,8 @@ Clarinet.test({
 Clarinet.test({
   name: '`governance token delegation` - submit a proposal with invalid start block height',
   async fn(chain: Chain, accounts: Map<string, Account>) {
-    const { init, propose } = fetchApi(accounts.get('deployer')!);
+    const { init } = executorApi(accounts.get('deployer')!);
+    const { propose } = proposalApi(accounts.get('deployer')!);
     const invalidStartHeight = 144;
     let { receipts } = chain.mineBlock([
       init(BOOTSTRAPS.DELEGATE_VOTING_DAO),
@@ -139,7 +49,8 @@ Clarinet.test({
 Clarinet.test({
   name: '`governance token delegation` - submit a proposal with insufficient voting weight',
   async fn(chain: Chain, accounts: Map<string, Account>) {
-    const { init, propose } = fetchApi(accounts.get('deployer')!);
+    const { init } = executorApi(accounts.get('deployer')!);
+    const { propose } = proposalApi(accounts.get('deployer')!);
     const validStartHeight = 145;
     const { receipts } = chain.mineBlock([
       init(BOOTSTRAPS.DELEGATE_VOTING_DAO),
@@ -152,8 +63,9 @@ Clarinet.test({
 Clarinet.test({
   name: '`governance token delegation` - cancel a proposal',
   async fn(chain: Chain, accounts: Map<string, Account>) {
-    const { init, delegate } = fetchApi(accounts.get('deployer')!);
-    const { propose } = fetchApi(accounts.get('wallet_2')!);
+    const { init } = executorApi(accounts.get('deployer')!);
+    const { delegate } = governanceTokenApi(accounts.get('deployer')!);
+    const { propose } = proposalApi(accounts.get('wallet_2')!);
     const delegatee = accounts.get('wallet_2')!.address;
     const delegator = accounts.get('deployer')!.address;
     const validStartHeight = 145;
@@ -169,8 +81,9 @@ Clarinet.test({
 Clarinet.test({
   name: '`governance token delegation` - submit a successful proposal',
   async fn(chain: Chain, accounts: Map<string, Account>) {
-    const { init, delegate, getVotingWeight } = fetchApi(accounts.get('deployer')!);
-    const { propose } = fetchApi(accounts.get('wallet_2')!);
+    const { init } = executorApi(accounts.get('deployer')!);
+    const { delegate, getVotingWeight } = governanceTokenApi(accounts.get('deployer')!);
+    const { propose } = proposalApi(accounts.get('wallet_2')!);
     const delegatee = accounts.get('wallet_2')!.address;
     const delegator = accounts.get('deployer')!.address;
     const validStartHeight = 145;
@@ -189,8 +102,10 @@ Clarinet.test({
 Clarinet.test({
   name: '`governance token delegation` - vote on proposal with insufficient voting weight',
   async fn(chain: Chain, accounts: Map<string, Account>) {
-    const { init, delegate, vote } = fetchApi(accounts.get('deployer')!);
-    const { propose } = fetchApi(accounts.get('wallet_2')!);
+    const { init } = executorApi(accounts.get('deployer')!);
+    const { delegate } = governanceTokenApi(accounts.get('deployer')!);
+    const { vote } = voteApi(accounts.get('deployer')!);
+    const { propose } = proposalApi(accounts.get('wallet_2')!);
     const delegatee = accounts.get('wallet_2')!.address;
     const delegator = accounts.get('deployer')!.address;
     const validStartHeight = 145;
@@ -212,8 +127,10 @@ Clarinet.test({
 Clarinet.test({
   name: '`governance token delegation` - vote on proposal too early/late',
   async fn(chain: Chain, accounts: Map<string, Account>) {
-    const { init, delegate } = fetchApi(accounts.get('deployer')!);
-    const { propose, vote } = fetchApi(accounts.get('wallet_2')!);
+    const { init } = executorApi(accounts.get('deployer')!);
+    const { delegate } = governanceTokenApi(accounts.get('deployer')!);
+    const { propose } = proposalApi(accounts.get('wallet_2')!);
+    const { vote } = voteApi(accounts.get('wallet_2')!);
     const delegatee = accounts.get('wallet_2')!.address;
     const delegator = accounts.get('deployer')!.address;
     const validStartHeight = 145;
@@ -242,8 +159,10 @@ Clarinet.test({
 Clarinet.test({
   name: '`governance token delegation` - vote on proposal more than once',
   async fn(chain: Chain, accounts: Map<string, Account>) {
-    const { init, delegate } = fetchApi(accounts.get('deployer')!);
-    const { propose, vote } = fetchApi(accounts.get('wallet_2')!);
+    const { init } = executorApi(accounts.get('deployer')!);
+    const { delegate } = governanceTokenApi(accounts.get('deployer')!);
+    const { propose } = proposalApi(accounts.get('wallet_2')!);
+    const { vote } = voteApi(accounts.get('wallet_2')!);
     const delegatee = accounts.get('wallet_2')!.address;
     const delegator = accounts.get('deployer')!.address;
     const validStartHeight = 145;
@@ -267,13 +186,10 @@ Clarinet.test({
 Clarinet.test({
   name: '`governance token delegation` - vote on proposal successfully as delegate',
   async fn(chain: Chain, accounts: Map<string, Account>) {
-    const { init, delegate } = fetchApi(accounts.get('deployer')!);
-    const {
-      propose,
-      vote,
-      getCurrentVotes,
-      getProposalData,
-    } = fetchApi(accounts.get('wallet_2')!);
+    const { init } = executorApi(accounts.get('deployer')!);
+    const { delegate } = governanceTokenApi(accounts.get('deployer')!);
+    const { propose } = proposalApi(accounts.get('wallet_2')!);
+    const { vote, getCurrentVotes, getProposalData } = voteApi(accounts.get('wallet_2')!);
     const delegatee = accounts.get('wallet_2')!.address;
     const delegator = accounts.get('deployer')!.address;
     const validStartHeight = 145;
@@ -308,18 +224,12 @@ Clarinet.test({
 Clarinet.test({
   name: '`governance token delegation` - conclude a proposal',
   async fn(chain: Chain, accounts: Map<string, Account>) {
-    const {
-      init,
-      delegate,
-      getBalance,
-      conclude
-    } = fetchApi(accounts.get('deployer')!);
-    const {
-      propose,
-      vote,
-      getCurrentVotes,
-      getProposalData,
-    } = fetchApi(accounts.get('wallet_2')!);
+    const { init } = executorApi(accounts.get('deployer')!);
+    const { delegate } = governanceTokenApi(accounts.get('deployer')!);
+    const { getBalance } = governanceTokenApi(accounts.get('deployer')!);
+    const { conclude } = voteApi(accounts.get('deployer')!);
+    const { propose } = proposalApi(accounts.get('wallet_2')!);
+    const { vote, getCurrentVotes, getProposalData } = voteApi(accounts.get('wallet_2')!);
     const delegatee = accounts.get('wallet_2')!.address;
     const delegator = accounts.get('deployer')!.address;
     const validStartHeight = 145;

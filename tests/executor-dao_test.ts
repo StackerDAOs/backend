@@ -5,31 +5,9 @@ import {
   Chain,
   Tx,
   types,
-} from './utils/helpers.ts';
-import { BOOTSTRAPS, EXTENSIONS } from './utils/contract-addresses.ts';
-
-enum EXECUTOR_DAO_CODES {
-  ERR_UNAUTHORIZED = 1000,
-  ERR_ALREADY_EXECUTED = 1001,
-  ERR_INVALID_EXTENSION = 1002,
-};
-
-const call = (method: string, args: any[], address: string) => {
-  return Tx.contractCall('executor-dao', method, args, address)
-};
-
-const fetchApi = ({ address }: Account) => ({
-  init: (proposal: any) =>
-    call('init', [types.principal(proposal)], address),
-  isExtension: (extension: any) =>
-    call('is-extension', [types.principal(extension)], address),
-  setExtension: (extension: any, enabled: any) =>
-    call('set-extension', [types.principal(extension), types.bool(enabled)], address),
-  execute: (proposal: any) =>
-    call('execute', [types.principal(proposal)], address),
-  executedAt: (proposal: any) =>
-    call('executed-at', [types.principal(proposal)], address),
-});
+} from './utils/deps.ts';
+import { BOOTSTRAPS, EXTENSIONS, EXECUTOR_DAO_CODES } from './utils/common.ts';
+import { fetchApi } from './utils/api/executor-dao.ts';
 
 Clarinet.test({
   name: '`executor-dao` - initialize the dao',

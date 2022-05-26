@@ -119,7 +119,7 @@ depends_on = ["executor-dao", "proposal-trait"]
 
 # -- Multisignature Proposals
 [contracts.sdp-add-signer]
-path = "contracts/proposals/multisignature/add-signer.clar"
+path = "contracts/proposals/multisignature/sdp-add-signer.clar"
 depends_on = ["proposal-trait", "sde-multisig"]
 # -- End of Multisignature Proposals
 
