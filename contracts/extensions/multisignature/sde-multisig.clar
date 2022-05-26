@@ -84,7 +84,6 @@
   (is-some (index-of (var-get signers) tx-sender))
 )
 
-
 (define-read-only (has-signaled (proposal principal) (who principal))
   (default-to false (map-get? Signals {proposal: proposal, teamMember: who}))
 )
@@ -95,6 +94,13 @@
 
 (define-read-only (get-signals-required)
   (var-get signalsRequired)
+)
+
+(define-read-only (get-signer (who principal))
+  (match (index-of (var-get signers) who)
+    success (some who)
+    none
+  )
 )
 
 (define-read-only (get-signers)
