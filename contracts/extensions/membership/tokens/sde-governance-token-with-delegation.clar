@@ -142,7 +142,7 @@
 			(delegateSender (map-get? Delegators sender))
 			(delegateRecipient (map-get? Delegators recipient))
 		)
-		(if (is-some delegateSender)
+		(match delegateSender ok
 			(begin
 				;; Decrement the delegated weight of the sender to their delegatee
 				(map-set Delegators (unwrap-panic (get delegatee delegateSender)) { delegatee: (unwrap-panic (get delegatee delegateSender)), weight: (- (unwrap-panic (get weight delegateSender)) amount) })
@@ -160,7 +160,7 @@
 		(asserts! (> (unwrap-panic (get-balance delegator)) u0) ERR_INVALID_WEIGHT)
 		(asserts! (or (not (is-some (map-get? Delegators delegator))) (is-eq (unwrap-panic (get delegatee (map-get? Delegators delegator))) delegatee)) ERR_MUST_REVOKE_CURRENT_DELEGATION)
 		(map-set Delegators delegator { delegatee: delegatee, weight: (unwrap-panic (get-balance delegator)) })
-		(if (is-some (map-get? Delegatees delegatee))
+		(match (map-get? Delegatees delegatee) ok
 			(map-set Delegatees delegatee (+ (unwrap-panic (get-balance delegator)) (unwrap-panic (map-get? Delegatees delegatee))))
 			(map-set Delegatees delegatee (unwrap-panic (get-balance delegator)))
 		)
