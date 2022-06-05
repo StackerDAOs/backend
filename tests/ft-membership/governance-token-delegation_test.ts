@@ -51,11 +51,12 @@ Clarinet.test({
   async fn(chain: Chain, accounts: Map<string, Account>) {
     const { init } = executorApi(accounts.get('deployer')!);
     const { propose } = proposalApi(accounts.get('deployer')!);
-    const validStartHeight = 145;
+    const validStartHeight = 150;
     const { receipts } = chain.mineBlock([
       init(BOOTSTRAPS.DELEGATE_VOTING_DAO),
       propose(PROPOSALS.SDP_TRANSFER_FUNGIBLE_TOKENS, validStartHeight, GOVERNANCE.DELEGATE_TOKEN),
     ]);
+    console.log('block hieght', chain.blockHeight);
     receipts[1].result.expectErr().expectUint(DELEGATE_SUBMISSION_CODES.ERR_INSUFFICIENT_WEIGHT);
   },
 });
@@ -68,7 +69,7 @@ Clarinet.test({
     const { propose } = proposalApi(accounts.get('wallet_2')!);
     const delegatee = accounts.get('wallet_2')!.address;
     const delegator = accounts.get('deployer')!.address;
-    const validStartHeight = 145;
+    const validStartHeight = 150;
     let { receipts } = chain.mineBlock([
       init(BOOTSTRAPS.DELEGATE_VOTING_DAO),
       delegate(delegatee, delegator),
@@ -86,7 +87,7 @@ Clarinet.test({
     const { propose } = proposalApi(accounts.get('wallet_2')!);
     const delegatee = accounts.get('wallet_2')!.address;
     const delegator = accounts.get('deployer')!.address;
-    const validStartHeight = 145;
+    const validStartHeight = 150;
     let { receipts } = chain.mineBlock([
       init(BOOTSTRAPS.DELEGATE_VOTING_DAO),
       delegate(delegatee, delegator),
@@ -108,7 +109,7 @@ Clarinet.test({
     const { propose } = proposalApi(accounts.get('wallet_2')!);
     const delegatee = accounts.get('wallet_2')!.address;
     const delegator = accounts.get('deployer')!.address;
-    const validStartHeight = 145;
+    const validStartHeight = 150;
     let { receipts } = chain.mineBlock([
       init(BOOTSTRAPS.DELEGATE_VOTING_DAO),
       delegate(delegatee, delegator),
@@ -133,7 +134,7 @@ Clarinet.test({
     const { vote } = voteApi(accounts.get('wallet_2')!);
     const delegatee = accounts.get('wallet_2')!.address;
     const delegator = accounts.get('deployer')!.address;
-    const validStartHeight = 145;
+    const validStartHeight = 150;
     const invalidStartHeight = 144;
     const blockDuration = 1440;
     let { receipts } = chain.mineBlock([
@@ -165,7 +166,7 @@ Clarinet.test({
     const { vote } = voteApi(accounts.get('wallet_2')!);
     const delegatee = accounts.get('wallet_2')!.address;
     const delegator = accounts.get('deployer')!.address;
-    const validStartHeight = 145;
+    const validStartHeight = 150;
     let { receipts } = chain.mineBlock([
       init(BOOTSTRAPS.DELEGATE_VOTING_DAO),
       delegate(delegatee, delegator),
@@ -192,7 +193,7 @@ Clarinet.test({
     const { vote, getCurrentVotes, getProposalData } = voteApi(accounts.get('wallet_2')!);
     const delegatee = accounts.get('wallet_2')!.address;
     const delegator = accounts.get('deployer')!.address;
-    const validStartHeight = 145;
+    const validStartHeight = 150;
     const blockDuration = 1440;
     let { receipts } = chain.mineBlock([
       init(BOOTSTRAPS.DELEGATE_VOTING_DAO),
@@ -232,7 +233,7 @@ Clarinet.test({
     const { vote, getCurrentVotes, getProposalData } = voteApi(accounts.get('wallet_2')!);
     const delegatee = accounts.get('wallet_2')!.address;
     const delegator = accounts.get('deployer')!.address;
-    const validStartHeight = 145;
+    const validStartHeight = 150;
     const blockDuration = 1440;
     let { receipts } = chain.mineBlock([
       init(BOOTSTRAPS.DELEGATE_VOTING_DAO),

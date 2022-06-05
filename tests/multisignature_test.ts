@@ -67,46 +67,31 @@ Clarinet.test({
 });
 
 Clarinet.test({
-  name: '`multisig` - submit an unauthorized proposal',
+  name: '`multisig` - unauthorized proposal failure',
   async fn(chain: Chain, accounts: Map<string, Account>, contracts: Map<string, any>) {
-    const { init } = executorApi(accounts.get('deployer')!);
+    const { init, isExtension } = executorApi(accounts.get('deployer')!);
+    const { propose, getProposalData } = multisigApi(accounts.get('deployer')!);
     const recipient = accounts.get('deployer')!.address;
     const { receipts } = chain.mineBlock([
-      init(BOOTSTRAPS.VAULT),
+      init(BOOTSTRAPS.MULTISIG_DAO),
+      propose(PROPOSALS.SDP_UNAUTHORIZED_TRANSFER_STX),
+      getProposalData(PROPOSALS.SDP_UNAUTHORIZED_TRANSFER_STX),
     ]);
     receipts[0].result.expectOk().expectBool(true);
-  },
-});
+    receipts[1].result.expectOk().expectBool(true);
+    assertEquals(receipts[2].result.expectSome().expectTuple(), {
+      concluded: types.bool(false),
+      proposer: accounts.get('deployer')!.address,
+    })
 
-Clarinet.test({
-  name: '`multisig` - vote on an unauthorized proposal',
-  async fn(chain: Chain, accounts: Map<string, Account>, contracts: Map<string, any>) {
-    const {
-      init,
-    } = executorApi(accounts.get('deployer')!);
-    const recipient = accounts.get('deployer')!.address;
-    const { receipts } = chain.mineBlock([
-      init(BOOTSTRAPS.VAULT),
+    // Another signer signs off on the proposal and executes automatically
+    const signer = accounts.get('wallet_1')!
+    const { sign } = multisigApi(signer);
+    const { receipts: signerReceipts } = chain.mineBlock([
+      sign(PROPOSALS.SDP_ADD_SIGNER),
+      sign(PROPOSALS.SDP_UNAUTHORIZED_TRANSFER_STX),
     ]);
-    receipts[0].result.expectOk().expectBool(true);
-  },
-});
-
-Clarinet.test({
-  name: '`multisig` - execute an unauthorized proposal',
-  async fn(chain: Chain, accounts: Map<string, Account>, contracts: Map<string, any>) {
-    const {
-      init,
-      isExtension,
-    } = executorApi(accounts.get('deployer')!);
-    const recipient = accounts.get('deployer')!.address;
-    const { receipts } = chain.mineBlock([
-      init(BOOTSTRAPS.VAULT),
-    ]);
-    receipts[0].result.expectOk().expectBool(true);
-
-    const { receipts: submissionReceipts } = chain.mineBlock([
-      isExtension(EXTENSIONS.MULTISIG),
-    ]);
+    signerReceipts[0].result.expectErr().expectUint(MULTISIG_CODES.ERR_PROPOSAL_NOT_FOUND);
+    signerReceipts[1].result.expectErr().expectUint(4); // returns (err u4) because the sender principal in proposal is not authorized
   },
 });
