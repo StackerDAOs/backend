@@ -5,3 +5,4 @@ scraps.txt
 cvm/vmstate.db
 .DS_Store
 coverage.lcov
+deployments/
