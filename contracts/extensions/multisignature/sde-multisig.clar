@@ -147,7 +147,7 @@
           (if (has-signaled proposalPrincipal tx-sender) u0 u1)
         )
       )
-      (proposalData (unwrap-panic (get-proposal-data proposalPrincipal)))
+      (proposalData (unwrap! (get-proposal-data proposalPrincipal) ERR_PROPOSAL_NOT_FOUND))
     )
     (asserts! (is-signer tx-sender) ERR_NOT_SIGNER)
     (asserts! (is-none (contract-call? .executor-dao executed-at proposal)) ERR_ALREADY_EXECUTED)
@@ -177,10 +177,12 @@
       (
         (proposalData (unwrap-panic (get-proposal-data proposalPrincipal)))
       )
-      {
-        proposer: (get proposer proposalData),
-        concluded: (get concluded proposalData)
-      }
+      (some
+        {
+          proposer: (get proposer proposalData),
+          concluded: (get concluded proposalData)
+        }
+      )
     )
   )
 )

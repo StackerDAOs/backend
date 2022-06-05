@@ -11,6 +11,7 @@
 
 ;; Title: SDP Transfer Stacks
 ;; Author: StackerDAO Dev Team
+;; Description: Transfer 100 STX to STNHKEPYEPJ8ET55ZZ0M5A34J0R3N5FM2CMMMAZ6 for developing features for the upcoming release.
 ;; Type: Transfer
 
 (impl-trait .proposal-trait.proposal-trait)
@@ -19,7 +20,7 @@
 	(begin
 		(try! (contract-call? .sde-vault transfer u100 'STNHKEPYEPJ8ET55ZZ0M5A34J0R3N5FM2CMMMAZ6))
 
-		(print {message: "Execute proposal", sender: sender})
+		(print {event: "execute", sender: sender})
 		(ok true)
 	)
 )

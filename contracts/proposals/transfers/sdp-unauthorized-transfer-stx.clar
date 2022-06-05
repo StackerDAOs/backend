@@ -19,7 +19,7 @@
 	(begin
     (try! (stx-transfer? u100 .sde-vault 'STNHKEPYEPJ8ET55ZZ0M5A34J0R3N5FM2CMMMAZ6))
 
-		(print {message: "Execute proposal", sender: sender})
+		(print {event: "execute", sender: sender})
 		(ok true)
 	)
 )

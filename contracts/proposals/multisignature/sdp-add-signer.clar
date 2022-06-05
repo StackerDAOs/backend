@@ -12,10 +12,7 @@
 ;; Title: SDP Add Signer
 ;; Author: StackerDAO Dev Team
 ;; Type: Operational
-;; Description:
-;; Adds a new member to the Multisig. This signer will have all the same rights
-;; as the existing signers. In order to remove a member, another proposal
-;; will need to be created and signed to remove them from the Multisig.
+;; Description: Adds a new member to the Multisig. This signer will have all the same rights as the existing signers. In order to remove a member, another proposal will need to be created and signed to remove them from the Multisig.
 
 (impl-trait .proposal-trait.proposal-trait)
 
@@ -24,7 +21,7 @@
     (try! (contract-call? .sde-multisig add-signer 'ST2JHG361ZXG51QTKY2NQCVBPPRRE2KZB1HR05NNC))
     (try! (contract-call? .sde-multisig set-signals-required u3))
 
-    (print {message: "Execute proposal", sender: sender})
+    (print {event: "execute", sender: sender})
     (ok true)
   )
 )

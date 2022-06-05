@@ -37,7 +37,7 @@
 			{who: 'ST2JHG361ZXG51QTKY2NQCVBPPRRE2KZB1HR05NNC, allowance: u20}
 		)))
 
-		(print {message: "Execute proposal", sender: sender})
+		(print {event: "execute", sender: sender})
 		(contract-call? .sde-governance-token-with-lockup mint devFundAmount .sde-dev-fund)
 	)
 )
