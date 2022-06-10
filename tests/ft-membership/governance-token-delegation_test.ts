@@ -95,7 +95,7 @@ Clarinet.test({
       propose(PROPOSALS.SDP_TRANSFER_FUNGIBLE_TOKENS, validStartHeight, GOVERNANCE.DELEGATE_TOKEN),
     ]);
     receipts[1].result.expectOk().expectBool(true);
-    receipts[2].result.expectOk().expectUint(12500);
+    receipts[2].result.expectOk().expectUint(12500000000);
     receipts[3].result.expectOk().expectBool(true);
   },
 });
@@ -209,9 +209,9 @@ Clarinet.test({
       getProposalData(PROPOSALS.SDP_TRANSFER_FUNGIBLE_TOKENS),
     ]);
     voteReceipts[0].result.expectOk().expectBool(true);
-    voteReceipts[1].result.expectUint(12500);
+    voteReceipts[1].result.expectUint(12500000000);
     assertEquals(voteReceipts[2].result.expectSome().expectTuple(), {
-      votesFor: types.uint(12500),
+      votesFor: types.uint(12500000000),
       votesAgainst: types.uint(0),
       startBlockHeight: types.uint(validStartHeight),
       endBlockHeight: types.uint(validStartHeight + blockDuration),
@@ -249,9 +249,9 @@ Clarinet.test({
       getProposalData(PROPOSALS.SDP_TRANSFER_FUNGIBLE_TOKENS),
     ]);
     voteReceipts[0].result.expectOk().expectBool(true);
-    voteReceipts[1].result.expectUint(12500);
+    voteReceipts[1].result.expectUint(12500000000);
     assertEquals(voteReceipts[2].result.expectSome().expectTuple(), {
-      votesFor: types.uint(12500),
+      votesFor: types.uint(12500000000),
       votesAgainst: types.uint(0),
       startBlockHeight: types.uint(validStartHeight),
       endBlockHeight: types.uint(validStartHeight + blockDuration),
@@ -267,7 +267,7 @@ Clarinet.test({
     ]);
     concludeReceipts[0].result.expectOk().expectBool(true);
     assertEquals(concludeReceipts[1].result.expectSome().expectTuple(), {
-      votesFor: types.uint(12500),
+      votesFor: types.uint(12500000000),
       votesAgainst: types.uint(0),
       startBlockHeight: types.uint(validStartHeight),
       endBlockHeight: types.uint(validStartHeight + blockDuration),

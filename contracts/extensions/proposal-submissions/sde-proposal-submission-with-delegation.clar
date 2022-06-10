@@ -29,7 +29,7 @@
 
 (define-map parameters (string-ascii 34) uint)
 
-(map-set parameters "proposeFactor" u400000) ;; 1% of 250k initially distributed to Megapoont holders required to vote
+(map-set parameters "proposeFactor" u400000000000) ;; 1% of 250k initially distributed to Megapoont holders required to vote
 (map-set parameters "proposalDuration" u1440) ;; ~10 days based on a ~10 minute block time.
 (map-set parameters "minimumProposalStartDelay" u144) ;; ~1 day minimum delay before voting on a proposal can start.
 (map-set parameters "maximumProposalStartDelay" u1008) ;; ~7 days maximum delay before voting on a proposal can start.

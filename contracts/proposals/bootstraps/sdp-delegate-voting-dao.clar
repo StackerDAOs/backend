@@ -17,25 +17,32 @@
 
 (define-public (execute (sender principal))
 	(begin
-		;; Enable extensions.
-		(try! (contract-call? .executor-dao set-extensions
-			(list
-				{extension: .sde-vault, enabled: true}
-        {extension: .sde-governance-token-with-delegation, enabled: true}
-				{extension: .sde-proposal-submission-with-delegation, enabled: true}
-        {extension: .sde-proposal-voting-with-delegation, enabled: true}
+		(let
+			(
+				(decimals (unwrap-panic (contract-call? .sde-governance-token-with-delegation get-decimals)))
+				(microTokens (pow u10 decimals))
 			)
-		))
 
-		;; Whitelist token
-		(try! (contract-call? .sde-vault set-whitelist .sde-governance-token-with-delegation true))
+			;; Enable extensions.
+			(try! (contract-call? .executor-dao set-extensions
+				(list
+					{extension: .sde-vault, enabled: true}
+					{extension: .sde-governance-token-with-delegation, enabled: true}
+					{extension: .sde-proposal-submission-with-delegation, enabled: true}
+					{extension: .sde-proposal-voting-with-delegation, enabled: true}
+				)
+			))
 
-		;; Mint 237,500k tokens to the DAO treasury upon initialization.
-		(try! (contract-call? .sde-governance-token-with-delegation mint u237500 .sde-vault))
-		;; Mint 12,500 tokens (min for delegation and quorum) to the deployer.
-		(try! (contract-call? .sde-governance-token-with-delegation mint u12500 sender))
+			;; Whitelist token
+			(try! (contract-call? .sde-vault set-whitelist .sde-governance-token-with-delegation true))
 
-		(print {message: "...to be a completely separate network and separate block chain, yet share CPU power with Bitcoin.", sender: sender})
-		(ok true)
+			;; Mint 237,500k tokens to the DAO treasury upon initialization.
+			(try! (contract-call? .sde-governance-token-with-delegation mint (* microTokens u237500) .sde-vault))
+			;; Mint 12,500 tokens (min for delegation and quorum) to the deployer.
+			(try! (contract-call? .sde-governance-token-with-delegation mint (* microTokens u12500) sender))
+
+			(print {message: "...to be a completely separate network and separate block chain, yet share CPU power with Bitcoin.", sender: sender})
+			(ok true)
+		)
 	)
 )

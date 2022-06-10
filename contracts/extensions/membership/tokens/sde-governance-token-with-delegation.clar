@@ -19,6 +19,7 @@
 
 (define-constant ERR_UNAUTHORIZED (err u2400))
 (define-constant ERR_NOT_TOKEN_OWNER (err u2401))
+(define-constant ERR_CANT_DELEGATE_TO_SELF (err u2402))
 (define-constant ERR_NOT_ENOUGH_TOKENS (err u2403))
 (define-constant ERR_INVALID_WEIGHT (err u2404))
 (define-constant ERR_MUST_REVOKE_CURRENT_DELEGATION (err u2405))
@@ -157,6 +158,7 @@
 (define-public (delegate (delegatee principal) (delegator principal))
 	(begin
 		(asserts! (or (is-eq tx-sender delegator) (is-eq contract-caller delegator)) ERR_NOT_TOKEN_OWNER)
+		(asserts! (not (is-eq delegatee delegator)) ERR_CANT_DELEGATE_TO_SELF)
 		(asserts! (> (unwrap-panic (get-balance delegator)) u0) ERR_INVALID_WEIGHT)
 		(asserts! (or (not (is-some (map-get? Delegators delegator))) (is-eq (unwrap-panic (get delegatee (map-get? Delegators delegator))) delegatee)) ERR_MUST_REVOKE_CURRENT_DELEGATION)
 		(map-set Delegators delegator { delegatee: delegatee, weight: (unwrap-panic (get-balance delegator)) })

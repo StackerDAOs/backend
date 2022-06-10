@@ -51,8 +51,8 @@
 (define-map MemberTotalVotes {proposal: principal, voter: principal, governanceToken: principal} uint)
 (define-map parameters (string-ascii 34) uint)
 
-(map-set parameters "voteFactor" u400000) ;; 1% of 250k initially distributed to Megapoont holders required to vote
-(map-set parameters "quorumThreshold" u12500) ;; 5% of 250k initially distributed to Megapoont holders required for quorum
+(map-set parameters "voteFactor" u400000000000) ;; 1% of 250k initially distributed to Megapoont holders required to vote
+(map-set parameters "quorumThreshold" u12500000000) ;; 5% of 250k initially distributed to Megapoont holders required for quorum
 
 ;; --- Authorization check
 
