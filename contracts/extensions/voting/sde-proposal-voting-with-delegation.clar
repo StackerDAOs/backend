@@ -12,8 +12,8 @@
 ;; Title: Proposal Voting with Delegation
 ;; Author: StackerDAO
 
-(use-trait proposal-trait .proposal-trait.proposal-trait)
 (use-trait delegate-token-trait .delegate-token-trait.delegate-token-trait)
+(use-trait proposal-trait .proposal-trait.proposal-trait)
 
 (impl-trait .extension-trait.extension-trait)
 
@@ -34,6 +34,13 @@
 (define-constant ERR_ALREADY_VOTED (err u2514))
 (define-constant ERR_UNKNOWN_PARAMETER (err u2515))
 
+(define-constant ERR_NOT_TOKEN_OWNER (err u2516))
+(define-constant ERR_CANT_DELEGATE_TO_SELF (err u2517))
+(define-constant ERR_NOT_ENOUGH_TOKENS (err u2518))
+(define-constant ERR_INVALID_WEIGHT (err u2519))
+(define-constant ERR_MUST_REVOKE_CURRENT_DELEGATION (err u2520))
+(define-constant ERR_NO_DELEGATION_TO_REVOKE (err u2521))
+
 (define-data-var governanceTokenPrincipal principal .sde-governance-token-with-delegation)
 
 (define-map Proposals
@@ -53,6 +60,9 @@
 
 (map-set parameters "voteFactor" u400000000000) ;; 1% of 250k initially distributed to Megapoont holders required to vote
 (map-set parameters "quorumThreshold" u12500000000) ;; 5% of 250k initially distributed to Megapoont holders required for quorum
+
+(define-map Delegates principal principal)
+(define-map Delegators principal (list 99 principal))
 
 ;; --- Authorization check
 
@@ -118,20 +128,19 @@
 	(default-to u0 (map-get? MemberTotalVotes {proposal: proposal, voter: voter, governanceToken: governanceToken}))
 )
 
-(define-public (vote (for bool) (proposal principal) (governanceToken <delegate-token-trait>))
+(define-public (vote (for bool) (proposal principal) (delegator (optional principal)))
 	(let
 		(
 			(proposalData (unwrap! (map-get? Proposals proposal) ERR_UNKNOWN_PROPOSAL))
-			(tokenPrincipal (contract-of governanceToken))
-			(amount (unwrap-panic (contract-call? governanceToken get-voting-weight tx-sender)))
+			(voter (default-to tx-sender delegator))
+			(amount (unwrap-panic (contract-call? .sde-governance-token-with-delegation get-balance voter)))
 		)
-		(try! (is-governance-token governanceToken))
 		(asserts! (>= block-height (get startBlockHeight proposalData)) ERR_PROPOSAL_INACTIVE)
 		(asserts! (< block-height (get endBlockHeight proposalData)) ERR_PROPOSAL_INACTIVE)
-		(asserts! (try! (contract-call? governanceToken has-percentage-weight tx-sender (try! (get-parameter "voteFactor")))) ERR_INSUFFICIENT_WEIGHT)
-		(asserts! (is-eq u0 (get-current-total-votes proposal tx-sender tokenPrincipal)) ERR_ALREADY_VOTED)
-		(map-set MemberTotalVotes {proposal: proposal, voter: tx-sender, governanceToken: tokenPrincipal}
-			(+ (get-current-total-votes proposal tx-sender tokenPrincipal) amount)
+		(asserts! (is-eq true (unwrap-panic (contract-call? .sde-governance-token-with-delegation has-percentage-weight voter (try! (get-parameter "voteFactor"))))) ERR_INSUFFICIENT_WEIGHT)
+		(asserts! (is-eq u0 (get-current-total-votes proposal voter .sde-governance-token-with-delegation)) ERR_ALREADY_VOTED)
+		(map-set MemberTotalVotes {proposal: proposal, voter: voter, governanceToken: .sde-governance-token-with-delegation}
+			(+ (get-current-total-votes proposal voter .sde-governance-token-with-delegation) amount)
 		)
 		(map-set Proposals proposal
 			(if for
@@ -139,7 +148,23 @@
 				(merge proposalData {votesAgainst: (+ (get votesAgainst proposalData) amount)})
 			)
 		)
-		(print {event: "vote", proposal: proposal, voter: tx-sender, for: for, amount: amount})
+		(print {event: "vote", proposal: proposal, voter: voter, delegate: (if (is-none delegator) none (some tx-sender)), for: for, amount: amount})
+		(ok true)
+	)
+)
+
+(define-public (vote-many (votes (list 10 {for: bool, proposal: principal, delegator: principal})))
+	(ok (map vote-map votes))
+)
+
+(define-private (vote-map (delegator {for: bool, proposal: principal, delegator: principal}))
+	(let
+		(
+			(for (get for delegator))
+			(proposal (get proposal delegator))
+			(voter (get delegator delegator))
+		)
+		(try! (vote for proposal (some voter)))
 		(ok true)
 	)
 )
@@ -158,6 +183,53 @@
 		(and passed (try! (contract-call? .executor-dao execute proposal tx-sender)))
 		(ok passed)
 	)
+)
+
+;; --- Delegation
+
+(define-public (delegate (who principal))
+	(begin
+		(asserts! (not (is-eq tx-sender who)) ERR_CANT_DELEGATE_TO_SELF)
+		;; TODO: check if already delegated
+		(map-set Delegates tx-sender who)
+		(if (is-some (map-get? Delegators who))
+			(let
+				(
+					(delegatorList (unwrap-panic (map-get? Delegators who)))
+					(newDelegatorList (as-max-len? (append delegatorList tx-sender) u99))	
+				)
+				(ok (map-set Delegators who (unwrap-panic newDelegatorList)))
+			)
+			(ok (map-insert Delegators who (list tx-sender)))
+		)
+	)
+)
+
+(define-public (revoke-delegation (who principal))
+	(begin
+		(asserts! (or (is-eq tx-sender who) (is-eq contract-caller who)) ERR_NOT_TOKEN_OWNER)
+		(asserts! (is-some (map-get? Delegates who)) ERR_NO_DELEGATION_TO_REVOKE)
+		(ok (map-delete Delegates who))
+	)
+)
+
+;; (define-public (remove-signer (who principal))
+;;   (begin
+;;     (try! (is-dao-or-extension))
+;;     (asserts! (>= (- (get-signers-count) u1) (var-get signalsRequired)) ERR_INVALID)
+;;     (asserts! (not (is-none (index-of (var-get signers) who))) ERR_INVALID)
+;;     (var-set lastRemovedSigner (some who))
+;;     (var-set signers (unwrap-panic (as-max-len? (filter remove-signer-filter (var-get signers)) u10)))
+;;     (ok true)
+;;   )
+;; )
+
+(define-read-only (get-delegate (who principal))
+	(ok (map-get? Delegates who))
+)
+
+(define-read-only (get-delegators (who principal))
+	(ok (map-get? Delegators who))
 )
 
 ;; --- Extension callback
