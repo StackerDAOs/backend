@@ -39,7 +39,11 @@
 			;; Mint 237,500k tokens to the DAO treasury upon initialization.
 			(try! (contract-call? .sde-governance-token-with-delegation mint (* microTokens u237500) .sde-vault))
 			;; Mint 12,500 tokens (min for delegation and quorum) to the deployer.
-			(try! (contract-call? .sde-governance-token-with-delegation mint (* microTokens u12500) sender))
+			(try! (contract-call? .sde-governance-token-with-delegation mint (* microTokens u6000) sender))
+			(try! (contract-call? .sde-governance-token-with-delegation mint (* microTokens u2500) 'ST1SJ3DTE5DN7X54YDH5D64R3BCB6A2AG2ZQ8YPD5))
+			(try! (contract-call? .sde-governance-token-with-delegation mint (* microTokens u2000) 'ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG))
+			(try! (contract-call? .sde-governance-token-with-delegation mint (* microTokens u2000) 'ST2JHG361ZXG51QTKY2NQCVBPPRRE2KZB1HR05NNC))
+			
 
 			(print {message: "...to be a completely separate network and separate block chain, yet share CPU power with Bitcoin.", sender: sender})
 			(ok true)
