@@ -40,6 +40,7 @@
 (define-constant ERR_INVALID_WEIGHT (err u2519))
 (define-constant ERR_MUST_REVOKE_CURRENT_DELEGATION (err u2520))
 (define-constant ERR_NO_DELEGATION_TO_REVOKE (err u2521))
+(define-constant ERR_NOT_DELEGATE (err u2522))
 
 (define-data-var governanceTokenPrincipal principal .sde-governance-token-with-delegation)
 
@@ -58,7 +59,7 @@
 (define-map MemberTotalVotes {proposal: principal, voter: principal, governanceToken: principal} uint)
 (define-map parameters (string-ascii 34) uint)
 
-(map-set parameters "voteFactor" u400000000000) ;; 1% of 250k initially distributed to Megapoont holders required to vote
+(map-set parameters "voteFactor" u100000)
 (map-set parameters "quorumThreshold" u12500000000) ;; 5% of 250k initially distributed to Megapoont holders required for quorum
 
 (define-map Delegates principal principal)
@@ -137,6 +138,7 @@
 		)
 		(asserts! (>= block-height (get startBlockHeight proposalData)) ERR_PROPOSAL_INACTIVE)
 		(asserts! (< block-height (get endBlockHeight proposalData)) ERR_PROPOSAL_INACTIVE)
+		(asserts! (can-vote-on-behalf tx-sender delegator) ERR_NOT_DELEGATE)
 		(asserts! (is-eq true (unwrap-panic (contract-call? .sde-governance-token-with-delegation has-percentage-weight voter (try! (get-parameter "voteFactor"))))) ERR_INSUFFICIENT_WEIGHT)
 		(asserts! (is-eq u0 (get-current-total-votes proposal voter .sde-governance-token-with-delegation)) ERR_ALREADY_VOTED)
 		(map-set MemberTotalVotes {proposal: proposal, voter: voter, governanceToken: .sde-governance-token-with-delegation}
@@ -189,19 +191,9 @@
 
 (define-public (delegate (who principal))
 	(begin
-		(asserts! (not (is-eq tx-sender who)) ERR_CANT_DELEGATE_TO_SELF)
-		;; TODO: check if already delegated
+		(asserts! (or (not (is-eq tx-sender who)) (not (is-eq contract-caller who))) ERR_CANT_DELEGATE_TO_SELF)
 		(map-set Delegates tx-sender who)
-		(if (is-some (map-get? Delegators who))
-			(let
-				(
-					(delegatorList (unwrap-panic (map-get? Delegators who)))
-					(newDelegatorList (as-max-len? (append delegatorList tx-sender) u99))	
-				)
-				(ok (map-set Delegators who (unwrap-panic newDelegatorList)))
-			)
-			(ok (map-insert Delegators who (list tx-sender)))
-		)
+		(ok true)
 	)
 )
 
@@ -213,16 +205,12 @@
 	)
 )
 
-;; (define-public (remove-signer (who principal))
-;;   (begin
-;;     (try! (is-dao-or-extension))
-;;     (asserts! (>= (- (get-signers-count) u1) (var-get signalsRequired)) ERR_INVALID)
-;;     (asserts! (not (is-none (index-of (var-get signers) who))) ERR_INVALID)
-;;     (var-set lastRemovedSigner (some who))
-;;     (var-set signers (unwrap-panic (as-max-len? (filter remove-signer-filter (var-get signers)) u10)))
-;;     (ok true)
-;;   )
-;; )
+(define-read-only (can-vote-on-behalf (sender principal) (delegator (optional principal)))
+	(match delegator
+		voter (is-eq (map-get? Delegates voter) (some sender))
+		true
+	)
+)
 
 (define-read-only (get-delegate (who principal))
 	(ok (map-get? Delegates who))
