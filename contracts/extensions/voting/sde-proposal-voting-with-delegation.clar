@@ -42,7 +42,7 @@
 (define-constant ERR_NO_DELEGATION_TO_REVOKE (err u2521))
 (define-constant ERR_NOT_DELEGATE (err u2522))
 
-(define-data-var governanceTokenPrincipal principal .sde-governance-token-with-delegation)
+(define-data-var governanceTokenPrincipal principal .sde-governance-token)
 
 (define-map Proposals
 	principal
@@ -63,7 +63,7 @@
 (map-set parameters "quorumThreshold" u12500000000) ;; 5% of 250k initially distributed to Megapoont holders required for quorum
 
 (define-map Delegates principal principal)
-(define-map Delegators principal (list 99 principal))
+(define-map Delegators principal bool)
 
 ;; --- Authorization check
 
@@ -134,15 +134,15 @@
 		(
 			(proposalData (unwrap! (map-get? Proposals proposal) ERR_UNKNOWN_PROPOSAL))
 			(voter (default-to tx-sender delegator))
-			(amount (unwrap-panic (contract-call? .sde-governance-token-with-delegation get-balance voter)))
+			(amount (unwrap-panic (contract-call? .sde-governance-token get-balance voter)))
 		)
 		(asserts! (>= block-height (get startBlockHeight proposalData)) ERR_PROPOSAL_INACTIVE)
 		(asserts! (< block-height (get endBlockHeight proposalData)) ERR_PROPOSAL_INACTIVE)
 		(asserts! (can-vote-on-behalf tx-sender delegator) ERR_NOT_DELEGATE)
-		(asserts! (is-eq true (unwrap-panic (contract-call? .sde-governance-token-with-delegation has-percentage-weight voter (try! (get-parameter "voteFactor"))))) ERR_INSUFFICIENT_WEIGHT)
-		(asserts! (is-eq u0 (get-current-total-votes proposal voter .sde-governance-token-with-delegation)) ERR_ALREADY_VOTED)
-		(map-set MemberTotalVotes {proposal: proposal, voter: voter, governanceToken: .sde-governance-token-with-delegation}
-			(+ (get-current-total-votes proposal voter .sde-governance-token-with-delegation) amount)
+		(asserts! (is-eq true (unwrap-panic (contract-call? .sde-governance-token has-percentage-weight voter (try! (get-parameter "voteFactor"))))) ERR_INSUFFICIENT_WEIGHT)
+		(asserts! (is-eq u0 (get-current-total-votes proposal voter .sde-governance-token)) ERR_ALREADY_VOTED)
+		(map-set MemberTotalVotes {proposal: proposal, voter: voter, governanceToken: .sde-governance-token}
+			(+ (get-current-total-votes proposal voter .sde-governance-token) amount)
 		)
 		(map-set Proposals proposal
 			(if for
@@ -192,8 +192,9 @@
 (define-public (delegate (who principal))
 	(begin
 		(asserts! (or (not (is-eq tx-sender who)) (not (is-eq contract-caller who))) ERR_CANT_DELEGATE_TO_SELF)
-		(map-set Delegates tx-sender who)
-		(ok true)
+		(print {event: "delegate", who: who, delegator: tx-sender})
+		(map-set Delegators tx-sender true)
+		(ok (map-set Delegates tx-sender who))
 	)
 )
 
@@ -201,6 +202,8 @@
 	(begin
 		(asserts! (or (is-eq tx-sender who) (is-eq contract-caller who)) ERR_NOT_TOKEN_OWNER)
 		(asserts! (is-some (map-get? Delegates who)) ERR_NO_DELEGATION_TO_REVOKE)
+		(print {event: "revoke-delegation", who: who, delegator: tx-sender})
+		(map-delete Delegators tx-sender)
 		(ok (map-delete Delegates who))
 	)
 )
@@ -216,8 +219,8 @@
 	(ok (map-get? Delegates who))
 )
 
-(define-read-only (get-delegators (who principal))
-	(ok (map-get? Delegators who))
+(define-read-only (is-delegating (who principal))
+	(default-to false (map-get? Delegators who))
 )
 
 ;; --- Extension callback
