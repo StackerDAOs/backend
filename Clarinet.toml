@@ -1,5 +1,5 @@
 [project]
-name = "executor-dao"
+name = "stackerdaos"
 requirements = []
 
 [repl]
@@ -20,13 +20,17 @@ path = "contracts/executor-dao.clar"
 depends_on = ["proposal-trait", "extension-trait"]
 
 # -- Extensions
+[contracts.sde-governance-token]
+path = "contracts/extensions/membership/tokens/sde-governance-token.clar"
+depends_on = ["executor-dao", "sdt-governance-token-trait", "sip010-ft-trait"]
+
 [contracts.sde-governance-token-with-lockup]
 path = "contracts/extensions/membership/tokens/sde-governance-token-with-lockup.clar"
 depends_on = ["executor-dao", "governance-token-trait", "sip010-ft-trait"]
 
 [contracts.sde-governance-token-with-delegation]
 path = "contracts/extensions/membership/tokens/sde-governance-token-with-delegation.clar"
-depends_on = ["executor-dao", "delegate-token-trait", "sip010-ft-trait"]
+depends_on = ["executor-dao", "governance-token-delegation-trait", "sip010-ft-trait"]
 
 [contracts.sde-proposal-voting-with-lockup]
 path = "contracts/extensions/voting/sde-proposal-voting-with-lockup.clar"
@@ -34,7 +38,7 @@ depends_on = ["executor-dao", "proposal-trait", "extension-trait", "governance-t
 
 [contracts.sde-proposal-voting-with-delegation]
 path = "contracts/extensions/voting/sde-proposal-voting-with-delegation.clar"
-depends_on = ["executor-dao", "proposal-trait", "extension-trait", "delegate-token-trait", "sde-governance-token-with-delegation"]
+depends_on = ["executor-dao", "proposal-trait", "extension-trait", "delegate-token-trait", "sde-governance-token"]
 
 [contracts.sde-proposal-submission-with-lockup]
 path = "contracts/extensions/proposal-submissions/sde-proposal-submission-with-lockup.clar"
@@ -54,6 +58,10 @@ depends_on = ["executor-dao", "extension-trait", "sde-proposal-voting-with-locku
 
 [contracts.sde-dev-fund]
 path = "contracts/extensions/misc/sde-dev-fund.clar"
+depends_on = ["executor-dao", "extension-trait", "sde-governance-token-with-lockup"]
+
+[contracts.sde-token-vesting]
+path = "contracts/extensions/misc/sde-token-vesting.clar"
 depends_on = ["executor-dao", "extension-trait", "sde-governance-token-with-lockup"]
 
 [contracts.sde-membership]
@@ -97,12 +105,16 @@ depends_on = ["executor-dao", "proposal-trait", "sde-emergency-execute", "sde-em
 [contracts.sdp-dev-fund]
 path = "contracts/proposals/sdp-dev-fund.clar"
 depends_on = ["executor-dao", "proposal-trait", "sde-governance-token-with-lockup"]
+
+[contracts.sdp-token-vesting]
+path = "contracts/proposals/sdp-token-vesting.clar"
+depends_on = ["executor-dao", "proposal-trait", "sde-governance-token"]
 # -- End of Proposals
 
 # -- Bootstrap Proposals
 [contracts.sdp-delegate-voting-dao]
 path = "contracts/proposals/bootstraps/sdp-delegate-voting-dao.clar"
-depends_on = ["executor-dao", "proposal-trait", "sde-vault", "sde-governance-token-with-delegation"]
+depends_on = ["executor-dao", "proposal-trait", "sde-vault", "sde-governance-token"]
 
 [contracts.sdp-multisignature-dao]
 path = "contracts/proposals/bootstraps/sdp-multisignature-dao.clar"
@@ -152,6 +164,10 @@ depends_on = []
 
 [contracts.governance-token-trait]
 path = "contracts/traits/governance-token-trait.clar"
+depends_on = []
+
+[contracts.sdt-governance-token-trait]
+path = "contracts/traits/sdt-governance-token-trait.clar"
 depends_on = []
 
 [contracts.member-trait]
