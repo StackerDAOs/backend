@@ -28,8 +28,8 @@
 				(list
 					{extension: .sde-vault, enabled: true}
 					{extension: .sde-sip10-token, enabled: true}
-					{extension: .sde-proposal-submission-with-delegation, enabled: true}
-					{extension: .sde-proposal-voting-with-delegation, enabled: true}
+					{extension: .sde-proposal-submission, enabled: true}
+					{extension: .sde-proposal-voting, enabled: true}
 				)
 			))
 
@@ -37,7 +37,7 @@
 			(try! (contract-call? .sde-vault set-whitelist .sde-sip10-token true))
 
 			;; Change minimum start delay
-			(try! (contract-call? .sde-proposal-submission-with-delegation set-parameter "minimumProposalStartDelay" u10))
+			(try! (contract-call? .sde-proposal-submission set-parameter "minimumProposalStartDelay" u10))
 
 			;; Mint 237,500k tokens to the DAO treasury upon initialization.
 			(try! (contract-call? .sde-sip10-token mint (* microTokens u480000) .sde-vault))
