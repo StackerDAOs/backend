@@ -19,7 +19,7 @@
 	(begin
 		(let
 			(
-				(decimals (unwrap-panic (contract-call? .sde-governance-token-with-delegation get-decimals)))
+				(decimals (unwrap-panic (contract-call? .sde-governance-token get-decimals)))
 				(microTokens (pow u10 decimals))
 			)
 
@@ -27,22 +27,21 @@
 			(try! (contract-call? .executor-dao set-extensions
 				(list
 					{extension: .sde-vault, enabled: true}
-					{extension: .sde-governance-token-with-delegation, enabled: true}
+					{extension: .sde-governance-token, enabled: true}
 					{extension: .sde-proposal-submission-with-delegation, enabled: true}
 					{extension: .sde-proposal-voting-with-delegation, enabled: true}
 				)
 			))
 
 			;; Whitelist token
-			(try! (contract-call? .sde-vault set-whitelist .sde-governance-token-with-delegation true))
+			(try! (contract-call? .sde-vault set-whitelist .sde-governance-token true))
 
 			;; Mint 237,500k tokens to the DAO treasury upon initialization.
-			(try! (contract-call? .sde-governance-token-with-delegation mint (* microTokens u237500) .sde-vault))
+			(try! (contract-call? .sde-governance-token mint (* microTokens u97000000) .sde-vault))
 			;; Mint 12,500 tokens (min for delegation and quorum) to the deployer.
-			(try! (contract-call? .sde-governance-token-with-delegation mint (* microTokens u6000) sender))
-			(try! (contract-call? .sde-governance-token-with-delegation mint (* microTokens u2500) 'ST1SJ3DTE5DN7X54YDH5D64R3BCB6A2AG2ZQ8YPD5))
-			(try! (contract-call? .sde-governance-token-with-delegation mint (* microTokens u2000) 'ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG))
-			(try! (contract-call? .sde-governance-token-with-delegation mint (* microTokens u2000) 'ST2JHG361ZXG51QTKY2NQCVBPPRRE2KZB1HR05NNC))
+			(try! (contract-call? .sde-governance-token mint (* microTokens u1000000) sender))
+			(try! (contract-call? .sde-governance-token mint (* microTokens u500000) 'ST2ST2H80NP5C9SPR4ENJ1Z9CDM9PKAJVPYWPQZ50))
+			(try! (contract-call? .sde-governance-token mint (* microTokens u1500000) 'ST2Y2SFNVZBT8SSZ00XXKH930MCN0RFREB2GQG7CJ))
 			
 
 			(print {message: "...to be a completely separate network and separate block chain, yet share CPU power with Bitcoin.", sender: sender})

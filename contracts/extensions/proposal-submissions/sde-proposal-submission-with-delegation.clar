@@ -25,7 +25,7 @@
 (define-constant ERR_PROPOSAL_MINIMUM_START_DELAY (err u2604))
 (define-constant ERR_PROPOSAL_MAXIMUM_START_DELAY (err u2605))
 
-(define-data-var governanceTokenPrincipal principal .sde-governance-token-with-delegation)
+(define-data-var governanceTokenPrincipal principal .sde-governance-token)
 
 (define-map parameters (string-ascii 34) uint)
 
