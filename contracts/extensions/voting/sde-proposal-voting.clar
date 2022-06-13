@@ -144,18 +144,21 @@
 	)
 )
 
-(define-public (vote-many (votes (list 10 {for: bool, proposal: principal, delegator: principal})))
+(define-public (vote-many (votes (list 10 {for: bool, proposal: principal, delegator: (optional principal)})))
 	(ok (map vote-map votes))
 )
 
-(define-private (vote-map (delegator {for: bool, proposal: principal, delegator: principal}))
+(define-private (vote-map (delegator {for: bool, proposal: principal, delegator: (optional principal)}))
 	(let
 		(
 			(for (get for delegator))
 			(proposal (get proposal delegator))
 			(voter (get delegator delegator))
 		)
-		(try! (vote for proposal (some voter)))
+		(match voter
+			foundDelegator (try! (vote for proposal (some foundDelegator)))
+			(try! (vote for proposal none))
+		)
 		(ok true)
 	)
 )
