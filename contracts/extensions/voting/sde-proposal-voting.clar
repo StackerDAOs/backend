@@ -60,8 +60,8 @@
 (define-map MemberTotalVotes {proposal: principal, voter: principal, governanceToken: principal} uint)
 (define-map parameters (string-ascii 34) uint)
 
-(map-set parameters "voteThreshold" (* MICRO_TOKENS u0)) ;; Tokens required to vote
-(map-set parameters "quorumThreshold" (* MICRO_TOKENS u12500)) ;; 5% of 250k initially distributed to Megapoont holders required for quorum
+(map-set parameters "voteThreshold" u0) ;; Tokens required to vote
+(map-set parameters "quorumThreshold" u12500) ;; 5% of 250k initially distributed to Megapoont holders required for quorum
 
 (define-map Delegates principal principal)
 (define-map Delegators principal bool)
@@ -78,7 +78,7 @@
 	(begin
 		(try! (is-dao-or-extension))
 		(try! (get-parameter parameter))
-		(ok (map-set parameters parameter (* MICRO_TOKENS value)))
+		(ok (map-set parameters parameter value))
 	)
 )
 
@@ -114,7 +114,7 @@
 		(
 			(balance (unwrap-panic (contract-call? governanceToken get-balance tx-sender)))
 		)
-		(ok (>= balance tokenThreshold))
+		(ok (>= balance (* MICRO_TOKENS tokenThreshold)))
 	)
 )
 
@@ -165,12 +165,13 @@
 		(
 			(proposalData (unwrap! (map-get? Proposals (contract-of proposal)) ERR_UNKNOWN_PROPOSAL))
 			(totalVotes (+ (get votesFor proposalData) (get votesAgainst proposalData)))
-      (passed (and (>= totalVotes (try! (get-parameter "quorumThreshold"))) (> (get votesFor proposalData) (get votesAgainst proposalData))))
+			(quorumThreshold (* MICRO_TOKENS (try! (get-parameter "quorumThreshold"))))
+      (passed (and (>= totalVotes quorumThreshold) (> (get votesFor proposalData) (get votesAgainst proposalData))))
 		)
 		(asserts! (not (get concluded proposalData)) ERR_PROPOSAL_ALREADY_CONCLUDED)
 		(asserts! (>= block-height (get endBlockHeight proposalData)) ERR_END_BLOCK_HEIGHT_NOT_REACHED)
 		(map-set Proposals (contract-of proposal) (merge proposalData {concluded: true, passed: passed}))
-		(print {event: "conclude", proposal: proposal, totalVotes: totalVotes, quorum: (try! (get-parameter "quorumThreshold")), passed: passed})
+		(print {event: "conclude", proposal: proposal, totalVotes: totalVotes, quorum: quorumThreshold, passed: passed})
 		(and passed (try! (contract-call? .executor-dao execute proposal tx-sender)))
 		(ok passed)
 	)

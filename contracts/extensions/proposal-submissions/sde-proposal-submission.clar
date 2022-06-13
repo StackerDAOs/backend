@@ -31,7 +31,7 @@
 
 (define-map parameters (string-ascii 34) uint)
 
-(map-set parameters "proposeThreshold" (* MICRO_TOKENS u150)) ;; Tokens required to submit a proposal
+(map-set parameters "proposeThreshold" u150) ;; Tokens required to submit a proposal
 (map-set parameters "proposalDuration" u720) ;; ~5 days based on a ~10 minute block time.
 (map-set parameters "minimumProposalStartDelay" u144) ;; ~1 day minimum delay before voting on a proposal can start.
 (map-set parameters "maximumProposalStartDelay" u1008) ;; ~7 days maximum delay before voting on a proposal can start.
@@ -84,7 +84,7 @@
 		(
 			(balance (unwrap-panic (contract-call? governanceToken get-balance tx-sender)))
 		)
-		(ok (>= balance tokenThreshold))
+		(ok (>= balance (* MICRO_TOKENS tokenThreshold)))
 	)
 )
 
