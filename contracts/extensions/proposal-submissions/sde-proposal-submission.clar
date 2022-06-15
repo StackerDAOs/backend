@@ -25,7 +25,7 @@
 (define-constant ERR_PROPOSAL_MINIMUM_START_DELAY (err u2604))
 (define-constant ERR_PROPOSAL_MAXIMUM_START_DELAY (err u2605))
 
-(define-constant MICRO_TOKENS (pow u10 u2))
+(define-constant MICRO (pow u10 u2))
 
 (define-data-var governanceTokenPrincipal principal .sde-sip10-token)
 
@@ -84,7 +84,7 @@
 		(
 			(balance (unwrap-panic (contract-call? governanceToken get-balance tx-sender)))
 		)
-		(ok (>= balance (* MICRO_TOKENS tokenThreshold)))
+		(ok (>= balance (* MICRO tokenThreshold)))
 	)
 )
 

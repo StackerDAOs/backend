@@ -41,7 +41,7 @@
 (define-constant ERR_NO_DELEGATION_TO_REVOKE (err u2521))
 (define-constant ERR_NOT_DELEGATE (err u2522))
 
-(define-constant MICRO_TOKENS (pow u10 u2))
+(define-constant MICRO (pow u10 u2))
 
 (define-data-var governanceTokenPrincipal principal .sde-sip10-token)
 
@@ -114,7 +114,7 @@
 		(
 			(balance (unwrap-panic (contract-call? governanceToken get-balance tx-sender)))
 		)
-		(ok (>= balance (* MICRO_TOKENS tokenThreshold)))
+		(ok (>= balance (* MICRO tokenThreshold)))
 	)
 )
 
@@ -168,7 +168,7 @@
 		(
 			(proposalData (unwrap! (map-get? Proposals (contract-of proposal)) ERR_UNKNOWN_PROPOSAL))
 			(totalVotes (+ (get votesFor proposalData) (get votesAgainst proposalData)))
-			(quorumThreshold (* MICRO_TOKENS (try! (get-parameter "quorumThreshold"))))
+			(quorumThreshold (* MICRO (try! (get-parameter "quorumThreshold"))))
       (passed (and (>= totalVotes quorumThreshold) (> (get votesFor proposalData) (get votesAgainst proposalData))))
 		)
 		(asserts! (not (get concluded proposalData)) ERR_PROPOSAL_ALREADY_CONCLUDED)
