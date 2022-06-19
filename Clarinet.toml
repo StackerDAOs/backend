@@ -165,6 +165,12 @@ path = "contracts/proposals/transfers/sdp-unauthorized-transfer-stx.clar"
 depends_on = ["proposal-trait"]
 # -- End of Transfer Proposals
 
+# -- Management Proposals
+[contracts.sdp-whitelist-asset]
+path = "contracts/proposals/management/sdp-whitelist-asset.clar"
+depends_on = ["proposal-trait", "sde-vault"]
+# -- End of Management Proposals
+
 # -- Traits
 [contracts.extension-trait]
 path = "contracts/traits/extension-trait.clar"

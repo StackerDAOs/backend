@@ -16,9 +16,11 @@
 
 (impl-trait .proposal-trait.proposal-trait)
 
+(define-constant MICRO (pow u10 u6))
+
 (define-public (execute (sender principal))
 	(begin
-		(try! (contract-call? .sde-vault transfer u100 'STNHKEPYEPJ8ET55ZZ0M5A34J0R3N5FM2CMMMAZ6))
+		(try! (contract-call? .sde-vault transfer (* MICRO u100) 'STNHKEPYEPJ8ET55ZZ0M5A34J0R3N5FM2CMMMAZ6))
 
 		(print {event: "execute", sender: sender})
 		(ok true)
