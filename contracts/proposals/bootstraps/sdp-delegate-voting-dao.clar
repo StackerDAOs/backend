@@ -39,11 +39,21 @@
 			;; Change minimum start delay
 			(try! (contract-call? .sde-proposal-submission set-parameter "minimumProposalStartDelay" u10))
 
+			;; Change duration of voting
+			(try! (contract-call? .sde-proposal-submission set-parameter "proposalDuration" u85))
+
+			;; Change execution delay
+			(try! (contract-call? .sde-proposal-voting set-parameter "executionDelay" u50))
+
 			;; Mint 237,500k tokens to the DAO treasury upon initialization.
 			(try! (contract-call? .sde-sip10-token mint (* microTokens u480000) .sde-vault))
 			;; Mint 12,500 tokens (min for delegation and quorum) to the deployer.
-			(try! (contract-call? .sde-sip10-token mint (* microTokens u420000) sender))
-			(try! (contract-call? .sde-sip10-token mint (* microTokens u100000) 'ST2ST2H80NP5C9SPR4ENJ1Z9CDM9PKAJVPYWPQZ50))
+			(try! (contract-call? .sde-sip10-token mint (* microTokens u25000) sender))
+			(try! (contract-call? .sde-sip10-token mint (* microTokens u5000) 'ST2ST2H80NP5C9SPR4ENJ1Z9CDM9PKAJVPYWPQZ50))
+			(try! (contract-call? .sde-sip10-token mint (* microTokens u2500) 'ST2Y2SFNVZBT8SSZ00XXKH930MCN0RFREB2GQG7CJ))
+			(try! (contract-call? .sde-sip10-token mint (* microTokens u3500) 'STPJ2HPED2TMR1HAFBFA5VQF986CRD4ZWHH36F6X))
+			(try! (contract-call? .sde-sip10-token mint (* microTokens u1500) 'ST2GG57WCVCS6AAVSKRHSKP10HJTQZ0M4AVTM0NAQ))
+			(try! (contract-call? .sde-sip10-token mint (* microTokens u5000) 'ST2RMJ7Y80B7MD438K60M2FSTEZNQGKYTYF21P9KC))
 			
 
 			(print {message: "...to be a completely separate network and separate block chain, yet share CPU power with Bitcoin.", sender: sender})
