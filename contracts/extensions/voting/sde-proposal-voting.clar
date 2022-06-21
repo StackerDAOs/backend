@@ -60,7 +60,7 @@
 (define-map MemberTotalVotes {proposal: principal, voter: principal, governanceToken: principal} uint)
 (define-map parameters (string-ascii 34) uint)
 
-(map-set parameters "voteThreshold" u0) ;; Tokens required to vote
+(map-set parameters "voteThreshold" u1) ;; Tokens required to vote
 (map-set parameters "quorumThreshold" u12500) ;; 5% of 250k initially distributed to Megapoont holders required for quorum
 (map-set parameters "executionDelay" u144) ;; Delay execution of proposal by ~ 1 day
 
@@ -173,7 +173,7 @@
       (passed (and (>= totalVotes quorumThreshold) (> (get votesFor proposalData) (get votesAgainst proposalData))))
 		)
 		(asserts! (not (get concluded proposalData)) ERR_PROPOSAL_ALREADY_CONCLUDED)
-		(asserts! (>= (+ block-height (try! (get-parameter "executionDelay"))) (get endBlockHeight proposalData)) ERR_END_BLOCK_HEIGHT_NOT_REACHED)
+		(asserts! (>= block-height (+ (try! (get-parameter "executionDelay")) (get endBlockHeight proposalData))) ERR_END_BLOCK_HEIGHT_NOT_REACHED)
 		(map-set Proposals (contract-of proposal) (merge proposalData {concluded: true, passed: passed}))
 		(print {event: "conclude", proposal: proposal, totalVotes: totalVotes, quorum: quorumThreshold, passed: passed})
 		(and passed (try! (contract-call? .executor-dao execute proposal tx-sender)))
