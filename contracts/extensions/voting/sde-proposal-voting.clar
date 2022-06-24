@@ -43,7 +43,7 @@
 
 (define-constant MICRO (pow u10 u2))
 
-(define-data-var governanceTokenPrincipal principal .sde-sip10-token)
+(define-data-var governanceTokenPrincipal principal .sde-citycoin-token)
 
 (define-map Proposals
 	principal
@@ -124,15 +124,15 @@
 		(
 			(proposalData (unwrap! (map-get? Proposals proposal) ERR_UNKNOWN_PROPOSAL))
 			(voter (default-to tx-sender delegator))
-			(amount (unwrap-panic (contract-call? .sde-sip10-token get-balance voter)))
+			(amount (unwrap-panic (contract-call? .sde-citycoin-token get-balance voter)))
 		)
 		(asserts! (>= block-height (get startBlockHeight proposalData)) ERR_PROPOSAL_INACTIVE)
 		(asserts! (< block-height (get endBlockHeight proposalData)) ERR_PROPOSAL_INACTIVE)
 		(asserts! (can-vote-on-behalf tx-sender delegator) ERR_NOT_DELEGATE)
-		(asserts! (unwrap-panic (can-vote voter (try! (get-parameter "voteThreshold")) .sde-sip10-token)) ERR_INSUFFICIENT_WEIGHT)
-		(asserts! (is-eq u0 (get-current-total-votes proposal voter .sde-sip10-token)) ERR_ALREADY_VOTED)
-		(map-set MemberTotalVotes {proposal: proposal, voter: voter, governanceToken: .sde-sip10-token}
-			(+ (get-current-total-votes proposal voter .sde-sip10-token) amount)
+		(asserts! (unwrap-panic (can-vote voter (try! (get-parameter "voteThreshold")) .sde-citycoin-token)) ERR_INSUFFICIENT_WEIGHT)
+		(asserts! (is-eq u0 (get-current-total-votes proposal voter .sde-citycoin-token)) ERR_ALREADY_VOTED)
+		(map-set MemberTotalVotes {proposal: proposal, voter: voter, governanceToken: .sde-citycoin-token}
+			(+ (get-current-total-votes proposal voter .sde-citycoin-token) amount)
 		)
 		(map-set Proposals proposal
 			(if for

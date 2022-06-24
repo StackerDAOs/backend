@@ -27,7 +27,7 @@
 
 (define-constant MICRO (pow u10 u2))
 
-(define-data-var governanceTokenPrincipal principal .sde-sip10-token)
+(define-data-var governanceTokenPrincipal principal .sde-citycoin-token)
 
 (define-map parameters (string-ascii 34) uint)
 
