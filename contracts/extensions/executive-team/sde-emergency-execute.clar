@@ -7,27 +7,10 @@
 ;;    / __/ |/_/_  __/ __/ |/ / __/  _/ __ \/ |/ /           
 ;;   / _/_>  <  / / / _//    /\ \_/ // /_/ /    /            
 ;;  /___/_/|_| /_/ /___/_/|_/___/___/\____/_/|_/             
-;;                                                           
-
-;; Title: SDE004 Emergency Execute
-;; Author: Marvin Janssen / StackerDAO Dev Team
-;; Depends-On: 
-;; Synopsis:
-;; This extension allows a small number of very trusted principals to immediately
-;; execute a proposal once a super majority is reached.
-;; Description:
-;; An extension meant for the bootstrapping period of a DAO. It temporarily gives
-;; some very trusted principals the ability to perform an "executive action";
-;; meaning, they can skip the voting process to immediately executive a proposal.
-;; The Emergency Executive extension has a sunset period of ~1 month from deploy
-;; time. Executive Team members, the parameters, and sunset period may be changed
-;; by means of a future proposal.
 
 (use-trait proposal-trait .proposal-trait.proposal-trait)
 
 (impl-trait .extension-trait.extension-trait)
-
-(define-data-var executiveTeamSunsetHeight uint (+ block-height u4380)) ;; ~1 month from deploy time
 
 (define-constant ERR_UNAUTHORIZED (err u2800))
 (define-constant ERR_NOT_EXECUTIVE_TEAM_MEMBER (err u2801))
@@ -40,6 +23,7 @@
 (define-map ExecutiveActionSignalCount principal uint)
 
 (define-data-var executiveSignalsRequired uint u1) ;; signals required for an executive action.
+(define-data-var executiveTeamSunsetHeight uint (+ block-height u4380)) ;; ~1 month from deploy time
 
 ;; --- Authorization check
 

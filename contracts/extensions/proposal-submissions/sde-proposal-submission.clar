@@ -7,11 +7,7 @@
 ;;    / __/ |/_/_  __/ __/ |/ / __/  _/ __ \/ |/ /           
 ;;   / _/_>  <  / / / _//    /\ \_/ // /_/ /    /            
 ;;  /___/_/|_| /_/ /___/_/|_/___/___/\____/_/|_/             
-;;                                                           
 
-;; Title: Proposal Submission
-;; Author: StackerDAO Dev Team
-;; Description:
 
 (use-trait proposal-trait .proposal-trait.proposal-trait)
 (use-trait sip010-ft-trait .sip010-ft-trait.sip010-ft-trait)
@@ -27,7 +23,7 @@
 
 (define-constant MICRO (pow u10 u2))
 
-(define-data-var governanceTokenPrincipal principal .sde-citycoin-token)
+(define-data-var governanceTokenPrincipal principal .sde-stackerdao-token)
 
 (define-map parameters (string-ascii 34) uint)
 

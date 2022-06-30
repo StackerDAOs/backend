@@ -7,21 +7,6 @@
 ;;    / __/ |/_/_  __/ __/ |/ / __/  _/ __ \/ |/ /           
 ;;   / _/_>  <  / / / _//    /\ \_/ // /_/ /    /            
 ;;  /___/_/|_| /_/ /___/_/|_/___/___/\____/_/|_/             
-;;                                                           
-
-;; Title: SDE003 Emergency Proposals
-;; Author: Marvin Janssen / StackerDAO Dev Team
-;; Depends-On: SDE001
-;; Synopsis:
-;; This extension allows for the creation of emergency proposals by a few trusted
-;; principals.
-;; Description:
-;; Emergency proposals have a voting period of roughly 1 day, instead of the
-;; normal proposal duration. Only a list of trusted principals, designated as the
-;; "emergency team", can create emergency proposals. The emergency proposal
-;; extension has a ~3 month sunset period, after which no more emergency
-;; proposals can be made. The emergency team members, sunset period, and 
-;; emergency vote duration can be changed by means of a future proposal.
 
 (use-trait proposal-trait .proposal-trait.proposal-trait)
 

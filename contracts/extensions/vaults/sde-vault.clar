@@ -7,15 +7,6 @@
 ;;    / __/ |/_/_  __/ __/ |/ / __/  _/ __ \/ |/ /           
 ;;   / _/_>  <  / / / _//    /\ \_/ // /_/ /    /            
 ;;  /___/_/|_| /_/ /___/_/|_/___/___/\____/_/|_/             
-;;                                                           
-
-;; Title: SDE009 Treasury
-;; Author: StackerDAO Dev Team
-;; Depends-On: SDE001
-;; Synopsis:
-;; This extension part of the core of StackerDAO. It allows for basic treasury operations.
-;; Description:
-;; Proposals may be submitted by any members to send funds from the treasury.
 
 (use-trait nft-trait .sip009-nft-trait.sip009-nft-trait)
 (use-trait ft-trait .sip010-ft-trait.sip010-ft-trait)

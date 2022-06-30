@@ -7,10 +7,6 @@
 ;;    / __/ |/_/_  __/ __/ |/ / __/  _/ __ \/ |/ /           
 ;;   / _/_>  <  / / / _//    /\ \_/ // /_/ /    /            
 ;;  /___/_/|_| /_/ /___/_/|_/___/___/\____/_/|_/             
-;;                                                           
-
-;; Title: Proposal Voting with Delegation
-;; Author: StackerDAO
 
 (use-trait sip010-ft-trait .sip010-ft-trait.sip010-ft-trait)
 (use-trait proposal-trait .proposal-trait.proposal-trait)
@@ -43,7 +39,8 @@
 
 (define-constant MICRO (pow u10 u2))
 
-(define-data-var governanceTokenPrincipal principal .sde-citycoin-token)
+(define-data-var governanceTokenPrincipal principal .sde-stackerdao-token)
+(define-data-var proposalSize uint u0)
 
 (define-map Proposals
 	principal
@@ -57,6 +54,7 @@
 		proposer: principal
 	}
 )
+(define-map proposalList uint principal)
 (define-map MemberTotalVotes {proposal: principal, voter: principal, governanceToken: principal} uint)
 (define-map parameters (string-ascii 34) uint)
 
@@ -87,6 +85,8 @@
 	(begin
 		(try! (is-dao-or-extension))
 		(asserts! (is-none (contract-call? .executor-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
+		(var-set proposalSize (+ u1 (var-get proposalSize)))
+		(map-insert proposalList (var-get proposalSize) (contract-of proposal))
 		(print {event: "propose", proposal: proposal, proposer: tx-sender})
 		(ok (asserts! (map-insert Proposals (contract-of proposal) (merge {votesFor: u0, votesAgainst: u0, concluded: false, passed: false} data)) ERR_PROPOSAL_ALREADY_EXISTS))
 	)
@@ -104,6 +104,14 @@
 
 (define-read-only (get-proposal-data (proposal principal))
 	(map-get? Proposals proposal)
+)
+
+(define-read-only (get-proposals (atIndex uint))
+	(map-get? proposalList atIndex)
+)
+
+(define-read-only (get-proposals-count)
+	(var-get proposalSize)
 )
 
 (define-read-only (get-current-total-votes (proposal principal) (voter principal) (governanceToken principal))
@@ -124,15 +132,15 @@
 		(
 			(proposalData (unwrap! (map-get? Proposals proposal) ERR_UNKNOWN_PROPOSAL))
 			(voter (default-to tx-sender delegator))
-			(amount (unwrap-panic (contract-call? .sde-citycoin-token get-balance voter)))
+			(amount (unwrap-panic (contract-call? .sde-stackerdao-token get-balance voter)))
 		)
 		(asserts! (>= block-height (get startBlockHeight proposalData)) ERR_PROPOSAL_INACTIVE)
 		(asserts! (< block-height (get endBlockHeight proposalData)) ERR_PROPOSAL_INACTIVE)
 		(asserts! (can-vote-on-behalf tx-sender delegator) ERR_NOT_DELEGATE)
-		(asserts! (unwrap-panic (can-vote voter (try! (get-parameter "voteThreshold")) .sde-citycoin-token)) ERR_INSUFFICIENT_WEIGHT)
-		(asserts! (is-eq u0 (get-current-total-votes proposal voter .sde-citycoin-token)) ERR_ALREADY_VOTED)
-		(map-set MemberTotalVotes {proposal: proposal, voter: voter, governanceToken: .sde-citycoin-token}
-			(+ (get-current-total-votes proposal voter .sde-citycoin-token) amount)
+		(asserts! (unwrap-panic (can-vote voter (try! (get-parameter "voteThreshold")) .sde-stackerdao-token)) ERR_INSUFFICIENT_WEIGHT)
+		(asserts! (is-eq u0 (get-current-total-votes proposal voter .sde-stackerdao-token)) ERR_ALREADY_VOTED)
+		(map-set MemberTotalVotes {proposal: proposal, voter: voter, governanceToken: .sde-stackerdao-token}
+			(+ (get-current-total-votes proposal voter .sde-stackerdao-token) amount)
 		)
 		(map-set Proposals proposal
 			(if for
@@ -145,7 +153,7 @@
 	)
 )
 
-(define-public (vote-many (votes (list 10 {for: bool, proposal: principal, delegator: (optional principal)})))
+(define-public (vote-many (votes (list 200 {for: bool, proposal: principal, delegator: (optional principal)})))
 	(ok (map vote-map votes))
 )
 

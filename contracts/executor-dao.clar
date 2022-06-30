@@ -69,7 +69,7 @@
 	)
 )
 
-;; --- Initial DAO setup with extensions, members, team members, and executive members
+;; --- Initialize DAO
 
 (define-public (init (proposal <proposal-trait>))
 	(let ((sender tx-sender))
