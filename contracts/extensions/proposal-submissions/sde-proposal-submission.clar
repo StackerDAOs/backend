@@ -90,7 +90,7 @@
 		(asserts! (>= startBlockHeight (+ block-height (try! (get-parameter "minimumProposalStartDelay")))) ERR_PROPOSAL_MINIMUM_START_DELAY)
 		(asserts! (<= startBlockHeight (+ block-height (try! (get-parameter "maximumProposalStartDelay")))) ERR_PROPOSAL_MAXIMUM_START_DELAY)
 		(asserts! (unwrap-panic (can-propose tx-sender (try! (get-parameter "proposeThreshold")) governanceToken)) ERR_INSUFFICIENT_WEIGHT)
-		(contract-call? .sde-proposal-voting add-proposal
+		(contract-call? .sde-proposal-voting-with-external-lockup add-proposal
 			proposal
 			{
 				startBlockHeight: startBlockHeight,
