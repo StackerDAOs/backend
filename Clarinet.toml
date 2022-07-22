@@ -56,6 +56,10 @@ depends_on = ["executor-dao", "sip010-ft-trait"]
 path = "contracts/extensions/voting/sde-proposal-voting.clar"
 depends_on = ["executor-dao", "proposal-trait", "extension-trait", "sip010-ft-trait", "sde-stackerdao-token"]
 
+[contracts.sde-proposal-voting-snapshot]
+path = "contracts/extensions/voting/sde-proposal-voting-snapshot.clar"
+depends_on = ["executor-dao", "proposal-trait", "extension-trait", "sip010-ft-trait", "sde-stackerdao-token"]
+
 [contracts.sde-proposal-voting-with-lockup]
 path = "contracts/extensions/voting/sde-proposal-voting-with-lockup.clar"
 depends_on = ["executor-dao", "proposal-trait", "extension-trait", "governance-token-trait", "sde-governance-token-with-lockup"]
@@ -64,9 +68,13 @@ depends_on = ["executor-dao", "proposal-trait", "extension-trait", "governance-t
 path = "contracts/extensions/voting/sde-proposal-voting-with-delegation.clar"
 depends_on = ["executor-dao", "proposal-trait", "extension-trait", "delegate-token-trait", "sde-governance-token"]
 
+[contracts.sde-proposal-voting-with-external-lockup]
+path = "contracts/extensions/voting/sde-proposal-voting-with-external-lockup.clar"
+depends_on = ["executor-dao", "proposal-trait", "extension-trait", "sde-stackerdao-token", "sde-token-lockup"]
+
 [contracts.sde-proposal-submission]
 path = "contracts/extensions/proposal-submissions/sde-proposal-submission.clar"
-depends_on = ["executor-dao", "extension-trait", "sde-proposal-voting"]
+depends_on = ["executor-dao", "extension-trait", "sde-proposal-voting-with-external-lockup"]
 
 [contracts.sde-proposal-submission-with-lockup]
 path = "contracts/extensions/proposal-submissions/sde-proposal-submission-with-lockup.clar"
@@ -123,6 +131,10 @@ depends_on = ["executor-dao", "extension-trait", "nft-membership", "sde-proposal
 [contracts.sde-multisig]
 path = "contracts/extensions/multisignature/sde-multisig.clar"
 depends_on = ["executor-dao", "extension-trait", "proposal-trait"]
+
+[contracts.sde-token-lockup]
+path = "contracts/extensions/lockup/sde-token-lockup.clar"
+depends_on = ["executor-dao", "sde-stackerdao-token"]
 # -- End of Extensions
 
 # -- Proposals
@@ -151,6 +163,10 @@ depends_on = ["executor-dao", "proposal-trait", "sde-vault", "sde-proposal-submi
 [contracts.sdp-stackerdao]
 path = "contracts/proposals/bootstraps/sdp-stackerdao.clar"
 depends_on = ["executor-dao", "proposal-trait", "sde-vault", "sde-proposal-submission", "sde-proposal-voting", "sde-stackerdao-token"]
+
+[contracts.sdp-megadao-v2]
+path = "contracts/proposals/bootstraps/sdp-megadao-v2.clar"
+depends_on = ["executor-dao", "proposal-trait", "sde-vault", "sde-emergency-execute", "sde-emergency-proposals", "sde-proposal-submission", "sde-proposal-voting-with-external-lockup", "sde-token-lockup", "sde-stackerdao-token"]
 
 [contracts.sdp-multisignature-dao]
 path = "contracts/proposals/bootstraps/sdp-multisignature-dao.clar"
